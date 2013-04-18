@@ -1,0 +1,10 @@
+structure
+0 ws 59 vz 121 ss 244 vz 365
+parameters
+see	false	phyto1	0	phyto2	1	EPSMIN	0.54	MOMIN	0.005	MOT	0.002		KANSF	0	NDSMAX	0.095	NDSSTART	0	NDSEND	365	KNDS	0.005	KNDST	1.03
+x0
+4	80	0.34	0.34	2	4	11.71
+input files
+.\inputFiles\u1997
+exchange files
+0ex

@@ -1,0 +1,2 @@
+useDynLib("simlake")
+exportPattern("^[[:alpha:]]+")

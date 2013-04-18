@@ -1,0 +1,10 @@
+structure
+0 ws 29 vz 133 ss 242 vz 365
+parameters
+see	false	phyto1	0	phyto2	1	EPSMIN	0.54	MOMIN	0.005	MOT	0.002	ANSMIN	-0.01	KANSF	-0.006	APSFMIN	1	APSFMAX	21	APSFT	1.03	RLW	0.9
+x0
+4 80 0.34 0.34 2 4 11.71
+input files
+uref-1997
+exchange files
+0ex

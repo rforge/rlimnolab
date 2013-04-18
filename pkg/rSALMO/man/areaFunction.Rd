@@ -1,0 +1,36 @@
+\name{areaFunction}
+\alias{areaFunction}
+\alias{vol2level}
+\alias{volumeFunction}
+\title{Hypsographic Functions for Conical Lake Geometry}
+\usage{
+  areaFunction(level, zmax, amax)
+
+  volumeFunction(level, zmax, amax)
+
+  vol2level(vol, zmax, amax)
+}
+\arguments{
+  \item{level}{vector of water level above ground}
+
+  \item{zmax}{maximum lake depth}
+
+  \item{amax}{surface area of the lake surface for
+  \code{level = zmax}}
+
+  \item{vol}{vector of given volume(s)}
+}
+\description{
+  The functions calculate area resp. volume of a lake with
+  an ellipsoidic depth profile.
+}
+\examples{
+level <- seq(0, 50, 1)
+amax  <- 9e6
+zmax  <- 50
+area <- areaFunction(level, zmax, amax)
+vol  <- volumeFunction(level, zmax, amax)
+plot(vol, cumsum(area), type="l")
+(vol - cumsum(area)) / vol
+}
+

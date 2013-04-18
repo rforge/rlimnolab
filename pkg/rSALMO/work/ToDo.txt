@@ -1,0 +1,36 @@
+1) reorganize src code properly
+
+MacrophytesCore.h   contains funtion headers
+MacrophytesCore.cpp contains  functions
+
+MacrophytesCore.cpp includes only the .h not the .cpp
+
+
+- reorder function arguments to make order as logical as possible
+
+
+2) Avoid global data, parameters should 
+   be passed via function calls
+
+
+3) Delete unnecessary data ( and their docs)
+
+4) rename functions whenever necessary (e.g. vectorize ...)
+
+
+6) create a function + example that calls ONLY Salmo
+
+- "SalmoMa" can call SALMO + Macrophytes directly
+- Other function can call only SALMO
+- Reason: avoid interdependency of data structures between both
+  functions (reordering)
+
+--> these functions should have good names, e.g.
+  SalmoCore or SalmoPlankton resp. SalmoMacrophytes
+
+
+7) make default data more user friendly (.txt files)
+
+8) write functions to read user-defined data
+
+... fill .Rd documentatiuon files

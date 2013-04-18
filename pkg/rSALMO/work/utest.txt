@@ -1,0 +1,4 @@
+time	vol	depth	zmix	qin	ased	srf	iin	temp	nin	pin	pomin	zin	oin	aver	ad	au	diff	x1in	x2in	x3in
+0	27652400	11.16	1	221184	0	1	1000	10	10	0.2	20	0	0	0	0	0	0	0	0	0
+1	27652400	11.16	1	221184	0	1	1000	10	10	0.2	20	0	0	0	0	0	0	0	0	0
+365	27652400	11.16	1	221184	0	1	1000	10	10	0.2	20	0	0	0	0	0	0	0	0	0

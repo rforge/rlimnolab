@@ -1,0 +1,76 @@
+require(simlake)
+
+data(pp)
+row.names(pp) <- c(
+  "phyton", 
+  "EPSX", 
+  "BETA", 
+  "GAMMAX",
+  "GAMMAIN",
+  "KI",
+  "KN",
+  "KP",
+  "KPF",
+  "NFIX",
+  "PFC",
+  "PFX",
+  "PHOTXMAX",
+  "PHOTXMIN",
+  "RXTMIN",
+  "RXTOPT",
+  "RXTSLOPE",
+  "TOPTX",
+  "UXZ",
+  "VS",
+  "YX",
+  "ZETA"
+)
+save(pp, file="pp.rda")
+
+data(pp_ma)
+row.names(pp_ma) <- c(
+  "fRootVegWin",
+  "fRootVegSum",
+  "cLengAllo",
+  "cLengMort",
+  "cAlloMin",
+  "cCovSpVeg",
+  "cTmInitVeg",
+  "hLRefVeg",
+  "cVPUptMaxVeg",
+  "cQ10ProdVeg",
+  "cQ10PrespVeg",
+  "cPDVegMax",
+  "cPDVegMin",
+  "cAfPUptVeg",
+  "fFloatVeg",
+  "fEmergVeg",
+  "cMuMaxVeg",
+  "cVNUptMaxVeg",
+  "cNDVegMax",
+  "cNDVegMin",
+  "cAffNuptVeg",
+  "unused cExtWat",
+  "cExtSpVeg",
+  "fPAR",
+  "fRefl",
+  "kMigrVeg",
+  "cDVegIn",
+  "kDRespVeg",
+  "cDCarrVeg",
+  "cDayWinVeg",
+  "fWinVeg",
+  "kMortVegSum",
+  "fDetWMortVeg",
+  "fDissMortVeg",
+  "fDepth1Veg",
+  "fDepth2Veg",
+  "cMaxHeightVeg",
+  "crelVegFiJv",
+  "kVegResus",
+  "pWaveMort",
+  "HWaveMort",
+  "MaxWaveMort"
+)
+save(pp_ma, file="pp_ma.rda")
+
