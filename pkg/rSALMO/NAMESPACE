@@ -1,2 +1,2 @@
-useDynLib("simlake")
+useDynLib("rSALMO")
 exportPattern("^[[:alpha:]]+")
