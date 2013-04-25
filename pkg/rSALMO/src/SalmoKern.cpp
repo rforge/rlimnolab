@@ -5,10 +5,11 @@
 
    JAVA version:         Steffen Dietze TU Ilmenau, 1997 
                          with bugfixes and extensions of thpe
-   C version             S. Rolinski        2004 - 2008  
-                         T. Petzoldt        2008 -
+   C version             S. Rolinski (SR)      2004 - 2008  
+                         T. Petzoldt (thpe)    2008 -
 
-   Thanks to: René Sachse
+   Thanks to: René Sachse (and many more, who just need to be asked if they
+              want to be mentioned here)
 */
 /*****************************************************************************/
 
@@ -33,9 +34,9 @@ using namespace std;
 #include <iostream> 
 #include <stdio.h>                /* needed for debugging with printf        */
 
-/*****************************************************************************/
+/*===========================================================================*/
 /*  General Settings, Conventions and Helper Formulae                        */
-/*****************************************************************************/
+/*===========================================================================*/
 
 /* Positions of Constants and Parameters in Vectors c, p und u               */
 #include "salmo_constants.h" 
@@ -95,15 +96,16 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  double O   = x[4 + nx];
  for (j = 0; j < nx; j++) G[j]  = x[4 + nx + j];
 
- /*****************************************************************************/
+ /*===========================================================================*/
  /* Assignment of parameters from vectors 'p' and 'c'                         */
  /*                                                                           */ 
  /* Notes:                                                                    */
  /*   - the cXXXXX constants are defined in salmo_constants.h                 */
  /*   - integration time is also contained in vector 'c'                      */
  /*   - all the XXX_j are #define macros pointing to the dynamic array pC     */
+ /*   - loops over XXX_j must have loop variable 'j' !!!                      */
  /*   - see salmo_macros.h                                                    */
- /*****************************************************************************/
+ /*===========================================================================*/
 
  double EPSMIN  = c[cEPSMIN];
  double ZLIGHT  = c[cZLIGHT];
@@ -225,13 +227,13 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
     Note assignments in salmo_macros.h                                        */
  double *cB  = new double[nx*(cB_rows+1)];
 
- /*****************************************************************************/
+ /*===========================================================================*/
  /* Assign elements of input matrix                                           */
  /* here "u" contains data for one layer with depth information               */
  /* In R use:                                                                 */
  /*   u1 <- cbind(t, v, zmixreal, zmix, qin, qout,                            */
  /*     srf, iin, te, nin, pin, pomin, x1in, x2in, zin, oin, ae, ah)          */
- /*****************************************************************************/
+ /*===========================================================================*/
 
  double t        = u[undt];
  double v        = u[uvol];
@@ -249,22 +251,21 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  double zin      = u[uzin];
  double oin      = u[uoin];
  double aver     = u[uaver];
- 
- /*****************************************************************************/
- /* Helper equations for ODE system                                           */
- /*****************************************************************************/  
-  
 
- /*****************************************************************************/
+ /*===========================================================================*/
+ /* Helper equations for ODE system                                           */
+ /*===========================================================================*/  
+
+ /*---------------------------------------------------------------------------*/
  /* 15.0    Oxygen during full circulation and in epilimnion                  */
  /*       = saturation concentration                                          */
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  // double sat = saturation(temp);                                    /* 15.1 */ 
  // double o = sat; // thpe: redundant in the recent version
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* Calculate nkons                                                           */
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
 
  int M   = (int) (zmix / ZLIGHT);                                      /* 9.3 */
  if (M < 2) M = 2;
@@ -334,11 +335,11 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    rxt_j = (RXTOPT_j - RXTMIN_j) / TOPTX_j * temp + RXTMIN_j;         /* 9.14 */
  }
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* Primary production according to the traditional formula (daily average)   */
  /* or Baumert's Chl:C ratio method                                           */
  /* Note: the Chl:C method is not yet completely implemented                  */
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  
  if (! CHLC) {
    for (zj = 1; zj <= M; zj++) {                                      /* 9.2  */
@@ -369,39 +370,40 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
     for (zj = 1; zj <= M; zj++) {                                     /* 9.2  */
       zvonj = (zj - 1) / M * zmix;                                    /* 7.5  */
 
-      /* 7.0 light in the mixed layer */
+      /* Light in the mixed layer */
       iredz = ired * exp(-eps * zvonj);                               /* 7.0  */
 
       for (j = 0; j < nx; j++) {
-       phox0 = phoxt_j * phoxns_j;
+        phox0 = phoxt_j * phoxns_j;
 
-       G[j] = 1.0; // !!!! thpe !!!! hacked !!!! set CHL:C to one
+        G[j] = 1.0; // thpe: still a workaround, sets CHL:C to one
 
-       // thpe: check parameter 8.64 ??  day --> seconds
-       alpha = phox0 / (KI_j / 8.64 * G[j]);
-       phoxlj = phox0 * (1 - exp(-alpha * G[j] * iredz / phox0) *
-                  exp(-BETA_j * alpha * G[j] * iredz / phox0));
-       dGj   = G[j] * phox0 * (exp(-alpha * G[j] * iredz / phox0)-
-                 (G[j] - GAMMIN_j) / (GAMMAX_j - GAMMIN_j)) *
-                 exp(-BETA_j * alpha * G[j] * iredz / phox0);
+        // thpe: check parameter 8.64 ??  day --> seconds
+        alpha = phox0 / (KI_j / 8.64 * G[j]);
+        phoxlj = phox0 * (1 - exp(-alpha * G[j] * iredz / phox0) *
+                   exp(-BETA_j * alpha * G[j] * iredz / phox0));
+        dGj   = G[j] * phox0 * (exp(-alpha * G[j] * iredz / phox0)-
+                  (G[j] - GAMMIN_j) / (GAMMAX_j - GAMMIN_j)) *
+                  exp(-BETA_j * alpha * G[j] * iredz / phox0);
                 
-       // photxj = phoxt_j * phoxl_j * phoxns_j;                      /* 9.5  */
-       photx_j = photx_j + phoxlj;
-       dG[j]   = dG[j] + dGj;       
+        // photxj = phoxt_j * phoxl_j * phoxns_j;                      /* 9.5  */
+        photx_j = photx_j + phoxlj;
+        dG[j]   = dG[j] + dGj;       
       } // end j
     } //end zj (loop over M)
  }
  /* End of branching of photosynthesis sub-models */
- /*****************************************************************************/
- 
- /* light at the bottom of the layer                                          */
+
+ /*---------------------------------------------------------------------------*/
+ /* Light at the bottom of the layer                                          */
+ /*---------------------------------------------------------------------------*/
  double ibottom = ired * exp(-eps * zmix);  
 
  for (j = 0;j < nx;j++) { 
    photx_j = photx_j / M; 
-      dG[j] = dG[j] / M; 
-      rx_j =   rxt_j + RXMF * photx_j;                                /* 9.13 */
-      wx_j =    wx_j + photx_j - rx_j;
+   dG[j] = dG[j] / M; 
+   rx_j =   rxt_j + RXMF * photx_j;                                   /* 9.13 */
+   wx_j =    wx_j + photx_j - rx_j;
  }   
 
  nkons = 0;
@@ -415,26 +417,24 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    }
  } else {
    for (j = 0;j < nx;j++) { 
-       nkons = nkons + photx_j * X[j]; 
-       nresp = nresp + rx_j * X[j]; 
+     nkons = nkons + photx_j * X[j]; 
+     nresp = nresp + rx_j * X[j]; 
    } 
  }
  nkons = nkons / YNX;
  nresp = nresp / YNX;
  
-  //printf("dGamma[0], Gamma[0], iin: %f    %f   %f\n", dG[0], G[0], ired);
- /******************************************************************************/
- /* Calculations for nrem (remineralisation of nitrogen)                       */
- /******************************************************************************/
+ /*---------------------------------------------------------------------------*/
+ /* Calculations for nrem (remineralisation of nitrogen)                      */
+ /*---------------------------------------------------------------------------*/
 
  double kzd, hwgdbd, hwgdd, sumxpf, kz, gdb, gd, hwgd, g, g3d, hwgi;
  double az, assiz, rzt, rzg, rz, wz, egg, nexkr, nrem, dt;
 
- double mortz = (MOMIN + MOT * temp) * Z / (KMO + Z);                 /* 12.12 */
- double nmort = mortz * RATNF / YZN;                                  /*  1.4  */
+ double mortz = (MOMIN + MOT * temp) * Z / (KMO + Z);                /* 12.12 */
+ double nmort = mortz * RATNF / YZN;                                 /*  1.4  */
  double gdt = (GMAX - GMIN) * exp(-R * fabs(log(temp / TOPTZ))) + GMIN; /* 9.22 */
  
-
  // ToDo: Reformulate remaining occurences of cB and pC 
 
  cB[nx-1 + nx*ipf] = pC[nx-1 + nx*pPFC];                              /* 9.25 */
@@ -453,21 +453,21 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    kzd = LGL * pow((D * PF), MGL);
 
  for (j = 0;j < nx;j++) {
-  if ((X[j] * pf_j) > WPKZ)                                           /* 9.24 */
-    kzi_j = KZMIN + LGH * pow((X[j] * pf_j), MGH); 
-  else 
-    kzi_j = LGL * pow((X[j] * pf_j), MGL);
+   if ((X[j] * pf_j) > WPKZ)                                           /* 9.24 */
+     kzi_j = KZMIN + LGH * pow((X[j] * pf_j), MGH); 
+   else 
+     kzi_j = LGL * pow((X[j] * pf_j), MGL);
  }
 
  /* if(kzd == 0)  protects against division by zero */  
  /* hwgdbd= D * PF / Z / ((KXG + D) / Z);
  else */
-  hwgdbd= D * PF / Z / ((KXG + D) / kzd + (KXG + D) / Z);             /* 9.23 */
+ hwgdbd= D * PF / Z / ((KXG + D) / kzd + (KXG + D) / Z);             /* 9.23 */
 
  for (j = 0;j < nx;j++) {
-  /* if(kzi_j == 0)     protects against difvision by zero */  
-  /* hwgdb_j= X[j] * pf_j / Z / ((KXG + X[j]) / Z);
-  else */
+   /* if(kzi_j == 0)     protects against difvision by zero */  
+   /* hwgdb_j= X[j] * pf_j / Z / ((KXG + X[j]) / Z);
+   else */
    hwgdb_j= X[j] * pf_j / Z / ((KXG + X[j]) / kzi_j + (KXG + X[j]) / Z); /* 9.23 */
  }
 
@@ -497,21 +497,19 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  for (j = 0;j < nx;j++) hwgi = hwgi + hwg_j;
 
  g3d = hwgd * g / (hwgi + hwgd);                                      /* 9.19 */
+
  for (j = 0;j < nx;j++) gi_j = hwg_j * g / (hwgi + hwgd);             /* 9.19 */
 
  az      = AZMAX - (AZMAX - AZMIN) * g / GMAX;                        /* 12.6  */
 
  assiz   = 0;
  for (j = 0;j < nx;j++) assiz = assiz + gi_j * UXZ_j;
+
  assiz   = az * (assiz + g3d * UXZD);                                 /* 12.5  */
-
  rzt     = (RZOPT - RZTMIN) * pow(temp/ TOPTZ,2) + RZTMIN;            /* 12.9  */
-
  rzg     = ((RZOPT - RZMIN) * g / GMAX + RZMIN) / RZOPT;              /* 12.8  */
-
  rz      = rzg * rzt;                                                 /* 12.7  */
  wz      = assiz - rz;                                                /* 12.4  */
-
  dt      = exp(DTA -DTB * log(temp) -DTC * log(temp) * log(temp));    /* 12.3  */
 
  if (dt < DTMIN)                                                      /* 12.2  */
@@ -530,9 +528,9 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  nkons   = nkons + assiz / YZN * RATN * Z;            
  nrem    = (nmort + nexkr) * Z;                                       /* 1.3  */
 
- /******************************************************************************/
- /* N release resp. denitirication at the sediment surface                     */
- /******************************************************************************/
+ /*---------------------------------------------------------------------------*/
+ /* N release resp. denitirication at the sediment surface                    */
+ /*---------------------------------------------------------------------------*/
  double ansfq,ansfs;
  if ((NDSSTART <= fmod(t,simyear)) && (fmod(t,simyear) < NDSEND)) {
    ansfs = NDSMAX  * N /(KNDS + N) * pow(KNDST, temp-4);
@@ -540,11 +538,11 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  } else { 
    ansfq = ANSFMIN + KANSF * temp;                                    /* 1.8  */
    ansfs = 0.0; 
-} 
+ } 
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* Calculations for pkons, prem, psed                                        */
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  double pkons, pmort, pexkr, presp, prem; /*,psed;*/
  pkons = 0;
  pexkr = 0;
@@ -563,12 +561,12 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  pexkr   = (pexkr + g3d / YD + rz / YZP) * RAT;  // Source            /* 4.6  */
  pkons   = pkons + assiz / YZP * RAT * Z;  // Sink                    
  prem    = (pmort + pexkr) * Z;            // Source                  /* 4.4  */
+ // psed    = KPSED * P;                                              /* 4.8  */
 
-// psed    = KPSED * P;                                               /* 4.8  */
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* P-release dependend on O2 or NO3-                                         */
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  double apsf; // always positive, therefore no source/sink splitting
 
 
@@ -588,93 +586,89 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    }
  } 
  
-// Rprintf("APSFMIN, APSFMAX, apsf = %g %g %g\n", APSFMIN, APSFMAX, apsf);
+ // Rprintf("APSFMIN, APSFMAX, apsf = %g %g %g\n", APSFMIN, APSFMAX, apsf);
 
  /*---------------------------------------------------------------------------*/
- /*  temperature correction. Reference temperature = 4 deg C                  */
+ /*  Temperature correction. Reference temperature = 4 deg C                  */
  /*---------------------------------------------------------------------------*/
  apsf = apsf * pow(APSFT, temp - 4);
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* Calculations for xwa, xsed, xgraz                                         */
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  for (j = 0;j < nx;j++) {
-  xwa_j   = wx_j * X[j];                                              /* 9.1  */
+   xwa_j = wx_j * X[j];                                               /* 9.1  */
 
-// bx[j]    = VS[j] / zmix;
+   // bx[j]    = VS[j] / zmix;
 
-  //Zres: resuspension depth
-  //  please explain: what are "SF" and "aver"
-  if (tief > Zres) 
-    bx_j    = VS_j/zmix *SF*(1 - aver);                               /* 9.17 */
-  else 
-    bx_j    = 0; 
+   /* Zres: resuspension depth */
+   if (tief > Zres) 
+     bx_j = VS_j/zmix *SF*(1 - aver);                                 /* 9.17 */
+   else 
+     bx_j = 0;
   
-  xsed_j  = bx_j * X[j];                                              /* 9.16 */
-  xgraz_j = gi_j * Z;                                                 /* 9.18 */
+   xsed_j  = bx_j * X[j];                                             /* 9.16 */
+   xgraz_j = gi_j * Z;                                                /* 9.18 */
  }
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* Calculations for zwa, zmo                                                 */
- /*****************************************************************************/
-// double zwa    = wz * Z;                                           /* 12.1  */
+ /*---------------------------------------------------------------------------*/
+ // double zwa    = wz * Z;                                          /* 12.1  */
  double zmo    = mortz * Z;                                          /* 12.11 */
-// double miraz  = VMIG / zmix;                                      /* 13.2  */
-// double zmig   = miraz * Z;                                        /* 13.1  */
+ // double miraz  = VMIG / zmix;                                     /* 13.2  */
+ // double zmig   = miraz * Z;                                       /* 13.1  */
 
- /*****************************************************************************/
+
+ /*---------------------------------------------------------------------------*/
  /* Calculations for dsed, dgraz                                              */
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  double bd       = 0;
  if (tief > Zres) 
    bd     = VD / zmix * SF * (1 - aver);                             /* 18.3  */
 
  double dsed   = bd * D;                                             /* 18.2  */
-
  double dgraz  = g3d * Z;                                            /* 18.4  */
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* Calculations for nim, nex, nsf,                                           */
  /*         pim, pex, psf,                                                    */
  /*         xex, xim,                                                         */
  /*         zim,                                                              */
  /*         dim, dex,                                                         */
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  double nim, nsfq, nsfs, pim, psf, zim, dim, dilution;
 
  dilution = qin / (v + qin);
 
-/* This formulation of import takes only the source, 
-   while the sinks are directly in the final equation. SR 2003-12-03          */
+ /* This formulation of import takes only the source,                         */
+ /* while the sinks are directly in the final equation. SR 2003-12-03         */
  nim   = nin * dilution;                                              /* 1.1  */
-
- nsfq =  ansfq * ased / v;                                            /* 1.7  */
- nsfs =  ansfs * ased / v;                                            /* 1.7  */
-
- pim  = pin * dilution;                                               /* 4.1  */
-
- psf  = apsf * ased / v;                                              /* 4.9  */
+ nsfq  = ansfq * ased / v;                                            /* 1.7  */
+ nsfs  = ansfs * ased / v;                                            /* 1.7  */
+ pim   = pin * dilution;                                              /* 4.1  */
+ psf   = apsf * ased / v;                                             /* 4.9  */
 
  for (j = 0;j < nx;j++) xim_j = xin_j * dilution;                     /* 9.34 */
  
  zim  = zin * dilution;                                              /* 13.13 */
  dim  = pomin * dilution;                                            /* 18.1  */
 
- /*****************************************************************************/
+
+ /*---------------------------------------------------------------------------*/
  /* SR 16.06.2003: former mixing calculation using "fluk"                     */
  /* is now found in the previously called function "advection"                */
  /* and then added to the results vector dx                                   */
- /*****************************************************************************/
-// nfluk   = (NH - N) * ah / ve;                                      /*  2.2 */
-// pfluk   = (PH - P) * ah / ve;                                      /*  5.2 */
-// for (j = 0;j < nx;j++) { xfluk[j]  = (XH[j] - X[j]) * ah / v; }    /* 10.1 */
-// zfluk   = (ZH - Z) * ah / ve;                                      /* 13.3 */
-// dfluk   = (DH - D) * ah / ve;                                      /* 19.2 */
+ /*---------------------------------------------------------------------------*/
+ // nfluk   = (NH - N) * ah / ve;                                     /*  2.2 */
+ // pfluk   = (PH - P) * ah / ve;                                     /*  5.2 */
+ // for (j = 0;j < nx;j++) { xfluk[j]  = (XH[j] - X[j]) * ah / v; }   /* 10.1 */
+ // zfluk   = (ZH - Z) * ah / ve;                                     /* 13.3 */
+ // dfluk   = (DH - D) * ah / ve;                                     /* 19.2 */
 
-/******************************************************************************/
-/*  Calculations for oim, oex, oprod, okons                                   */
-/******************************************************************************/
-
+ /*---------------------------------------------------------------------------*/
+ /*  Calculations for oim, oex, oprod, okons                                  */
+ /*---------------------------------------------------------------------------*/
  double oim, oprod, oresp, seza, lsez, minerd, sumxsed, lo, okons, olim;
  
  /* limitation of respiration by oxygen concentration (Rene Sachse 2012-07-09 */
@@ -733,65 +727,63 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  double nden = 0;
  if (N > 0 && O <= LINDEN) nden = N * KDEN * lo / (KNDS + N);        /*  3.8  */
   
- /*****************************************************************************/
+ /*===========================================================================*/
  /* Differential equations                                                    */
- /*****************************************************************************/
+ /*===========================================================================*/
 
- /*****************************************************************************/
+
+ /*---------------------------------------------------------------------------*/
  /*  1.0 Anorganic Nitrogen                                                   */
- /*****************************************************************************/
-
+ /*---------------------------------------------------------------------------*/
  dNq = nim + nrem + nresp + nsfq;           // N-Source
  dNs = N * dilution + nkons + nden + nsfs;  // N-Sink
- 
- /*****************************************************************************/
- /*  4.0 Orthophosphate                                                       */
- /*****************************************************************************/
 
+ /*---------------------------------------------------------------------------*/
+ /*  4.0 Orthophosphate                                                       */
+ /*---------------------------------------------------------------------------*/
  dPq = pim + prem + presp + psf;            // P-Source
  dPs = P * dilution + pkons;                // P-Sink
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /*  9.0 Phytoplankton                                                        */
  /* Note: sedimentation in "austauschfunktion"                                */
- /*****************************************************************************/
- 
+ /*---------------------------------------------------------------------------*/
  for (j = 0;j < nx;j++) {
    dXq[j] = xim_j + photx_j*X[j];
    dXs[j] = rx_j * olim * X[j] + dilution*X[j] + xgraz_j + xsed_j; 
    if (xminermode == 1) dXs[j] += xmineralisation[j];
  }
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* 12.0 Zooplankton                                                          */
- /*****************************************************************************/
-
+ /*---------------------------------------------------------------------------*/
  dZq = assiz * Z * olim + zim;
  dZs = rz * Z * olim + Z*dilution + zmo;
 
- /*****************************************************************************/
- /*  17.0 Oxygen                                                              */
- /*****************************************************************************/
 
+ /*---------------------------------------------------------------------------*/
+ /*  17.0 Oxygen                                                              */
+ /*---------------------------------------------------------------------------*/
  dOq  = oim + oprod; 
  dOs  = O * dilution + oresp + okons; 
 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
  /* 18.0 Detritus                                                             */
  /* Note: Sedimentation now in "austauschfunktion"                            */
- /* Note: Sedimentation to sediment needs to be calculated here again         */
+ /* Note: Sedimentation to sediment needs to be calculated again here         */
  /*       for usage of the R-Interface and ReacTran (sachse)                  */ 
- /*****************************************************************************/
+ /*---------------------------------------------------------------------------*/
   
  /* dsed is zero if SF = 0                                                    */
  /* (sedimentation calculated in "advection" or ext. sedimentation module)    */
-  dDq  = dim;
-  dDs  = D * dilution + dgraz + dsed;
-  if (xminermode == 1) dDs += dmineralisation;
+  
+ dDq  = dim;
+ dDs  = D * dilution + dgraz + dsed;
+ if (xminermode == 1) dDs += dmineralisation;
 
-
+ /*---------------------------------------------------------------------------*/
  /* assign return values (derivatives) subdivided into sources and sinks      */
-
+ /*---------------------------------------------------------------------------*/
  /* === Sources == */ 
  dxq[0] = dNq;
  dxq[1] = dPq;
@@ -808,9 +800,11 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  dxs[3 + nx] = dDs;
  dxs[4 + nx] = dOs;
 
- /* Changed environment vector used for returning boundary conditions !!    */
- /*  Light extintcion coefficient at bottom of the layer                    */
- /*  is changed by phytopl. and detritus                                    */
+ /*---------------------------------------------------------------------------*/
+ /* Changed environment vector used for returning boundary conditions !!      */
+ /*   Light extintcion coefficient at bottom of the layer                     */
+ /*   is changed by phytopl. and detritus                                     */
+ /*---------------------------------------------------------------------------*/ 
  u[undt] = eps;     
  u[uiin] = ibottom; //  light intensity at the bottom of the layer
 
@@ -823,24 +817,30 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  delete [] pC;
  delete [] cB;
  delete [] xmineralisation;
-} 
-/*============================================================================*/
-/* End of derivatives                                                         */
-/*============================================================================*/
+} /* end of derivatives */
+
+
 
 /******************************************************************************/
+/* Functions to handle 1D systems; diffusiion, advection,                     */
+/* reaction in multiple layers                                                */
+/* code written by SR                                                         */
+/******************************************************************************/
+
+
+/*============================================================================*/
 /* Function all_layers takes successively all individual levels               */
 /* from the input values and passes them to Salmo                             */
 /* returned are the derivatives (dx) per layer, the                           */
 /* full dx vecrot is then passed to "austausch"                               */
-/******************************************************************************/
-
+/*============================================================================*/
 void all_layers(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
  int nOI = nOfVar[inumberOfInputs];
  int nOS = nOfVar[inumberOfStates];
  int nl  = nOfVar[inumberOfLayers];
  double dtt = c[cdtt];   // actual time step
+ double vau, hxh;
 
  double *uu   = new double[nOI];
  double *xx   = new double[nOS];
@@ -849,20 +849,18 @@ void all_layers(int* nOfVar, double* c, double* p, double* u, double* x, double*
 
  for (int i = 0; i < nOI; i++) uu[i]  = 0.0;
  for (int i = 0; i < nOS; i++) {
-  xx[i]   = 0.0;
-  dq[i]   = 0.0; 
-  ds[i]   = 0.0; 
+   xx[i]   = 0.0;
+   dq[i]   = 0.0; 
+   ds[i]   = 0.0; 
  }
- double vau, hxh;
 
-// Accessing elements of input matrix 
-// according to their order  in X: N P Xi Z D + O        
-// int *kcin = new int[nOS] = {9, 10, 12, 13, 14, 11, 15}; 
+ // Accessing elements of input matrix 
+ // according to their order  in X: N P Xi Z D + O        
+ // int *kcin = new int[nOS] = {9, 10, 12, 13, 14, 11, 15}; 
 
-
-// -----------------------------------------------------------------------------
-//              Reaction
-// -----------------------------------------------------------------------------
+ /*---------------------------------------------------------------------------*/
+ /*              Reaction                                                     */
+ /*---------------------------------------------------------------------------*/
 
  for (int i = 0; i < nl; i++) {          // loop over all layers
    vau = u[i*nOI + uvol];
@@ -903,37 +901,38 @@ void all_layers(int* nOfVar, double* c, double* p, double* u, double* x, double*
  delete [] ds; 
 }
 
-/*****************************************************************************/
+
+/*===========================================================================*/
 /*  Function for_runge takes the single layers from inputs of all layers and */
 /*  passes this to Salmo.                                                    */
 /*  The returned values are the dx values per layer,                         */
 /*  and the full vector dx is then passed to "austausch"                     */
-/*****************************************************************************/
+/*===========================================================================*/
 
 void for_runge(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
- int nOI = nOfVar[inumberOfInputs];
- int nOS = nOfVar[inumberOfStates];
- int nl  = nOfVar[inumberOfLayers];
- int i_wet = 0;  // start of wet boxes; first layer that is calculated
+ int nOI    = nOfVar[inumberOfInputs];
+ int nOS    = nOfVar[inumberOfStates];
+ int nl     = nOfVar[inumberOfLayers];
+ int i_wet  = 0;  // start of wet boxes; first layer that is calculated
 
- // ToDo: change this to a while loop to avoid unnecessary copying of redundant data
+ double *dq = new double[nOS]; 
+ double *ds = new double[nOS]; 
+ double vau;
+
  for (int i = 0; i < nl; i++) {
    if (u[i * nOI + 1] < -10) i_wet++; else break;
  }
  
-
- double *dq   = new double[nOS]; 
- double *ds   = new double[nOS]; 
-
-// for (int i = 0; i < nOI; i++) { uu[i]  = 0.0; }
+ // for (int i = 0; i < nOI; i++) { uu[i]  = 0.0; }
  for (int i = 0; i < nOS; i++) {
-  dq[i]   = 0.0; 
-  ds[i]   = 0.0; 
+   dq[i] = 0.0; 
+   ds[i] = 0.0; 
  }
- double vau;
 
- /* Reaction ------------------------------------------------------------------*/
+ /*---------------------------------------------------------------------------*/
+ /* Reaction, calls SalmoKern                                                 */
+ /*---------------------------------------------------------------------------*/
  for (int i = i_wet; i < nl; i++) { // Loop over all layers
    vau = u[i * nOI + uvol];
    if (vau > 1E-5) {
@@ -951,7 +950,7 @@ void for_runge(int* nOfVar, double* c, double* p, double* u, double* x, double* 
      SalmoKern(nOfVar, c, p, &u[i*nOI], &x[i*nOS], dq, ds); 
      // SalmoKern(nOfVar, c, p, uu, xx, dq, ds); 
 
-     // pass light intensity at bottom of layer to the next layer
+     /* pass light intensity at bottom of layer to the next layer             */
      if (i < (nl - 1)) { 
        u[(i+1)*nOI + uiin] = u[uiin + i * nOI]; 
      }
@@ -971,11 +970,12 @@ void for_runge(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  delete [] ds; 
 }
 
-/*****************************************************************************/
+
+/*===========================================================================*/
 /*  This function calculates diffusion between the layers by using the       */
 /*  diffusion coefficient from the hydrodynamic model                        */
 /*  It uses a simple Gauss Solver for the implicit calculation.              */
-/*****************************************************************************/
+/*===========================================================================*/
 
 void diffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
@@ -1026,13 +1026,13 @@ void diffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  cc[i] = - dtt * bu;
  dd[i] = az;
  for (int i = i_wet+1; i < (nl-1); i++) {
-  az = 0.25*(are[i] + are[i+1])*(dz[i] + dz[i+1]);
-  bj = are[i]*u[i*nOI + uDi]/dz[i];
-  bu = are[i+1]*u[(i+1)*nOI + uDi]/dz[i+1];
-  aa[i] = - dtt * bj;
-  bb[i] =   dtt * (bu+bj) + az; 
-  cc[i] = - dtt * bu;
-  dd[i] = az;
+   az = 0.25*(are[i] + are[i+1])*(dz[i] + dz[i+1]);
+   bj = are[i]*u[i*nOI + uDi]/dz[i];
+   bu = are[i+1]*u[(i+1)*nOI + uDi]/dz[i+1];
+   aa[i] = - dtt * bj;
+   bb[i] =   dtt * (bu+bj) + az; 
+   cc[i] = - dtt * bu;
+   dd[i] = az;
  }
  i = nl-1; // for last layer
  az = 0.25* (are[i] * dz[i]);
@@ -1072,12 +1072,10 @@ void diffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  delete [] dz;
 }
 
-
-/*****************************************************************************/
-/*  This function calculates diffusion between the layers using the          */
+/*===========================================================================*/
+/*  Function fddiffusion calculates diffusion between the layers using the   */
 /*  traditional diffusion coefficients "au" and "ad".                        */
-/*****************************************************************************/
-
+/*===========================================================================*/
 
 void fddiffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
@@ -1132,12 +1130,13 @@ void fddiffusion(int* nOfVar, double* c, double* p, double* u, double* x, double
  }
 }
 
-/*****************************************************************************/
-/* The following function calculates all processes considered as advection   */
+
+/*===========================================================================*/
+/* Function advection calculates all processes considered as advection       */
 /* including sedimentation, vertical migration and oxygen exchange with the  */
 /* atmosphere.                                                               */
 /* It returns either dx (derivatives) or new states for implicit schemes     */
-/*****************************************************************************/
+/*===========================================================================*/
 
 void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
@@ -1161,10 +1160,11 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  for (int i = 0; i < nl; i++) { dz[i]  = 0.0; }
  double VD    = c[cVD]; 
  double SF    = c[cSF];
-// double VMIG  = c[cVMIG];
+ // double VMIG  = c[cVMIG];
       
-
- /* Advection ----------------------------------------------------------------*/
+ /*---------------------------------------------------------------------------*/
+ /* Advection                                                                 */
+ /*---------------------------------------------------------------------------*/
 
  /* depth-dependent linear function for weighting the sediment rate           */
  double *tff  = new double[nl]; 
@@ -1189,7 +1189,9 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  //are[nl-2] = u[(nl-1)*nOI + uased];  // interface depth at bottom
  //for (int i = nl-3; i >= 0; i--) { are[i] = u[(i+1)*nOI + kf] + are[i+1]; }
 
- /* Phytoplankton sedimentation                                     9.16, 9.17  */
+ /*---------------------------------------------------------------------------*/
+ /* Phytoplankton sedimentation                                   9.16, 9.17  */
+ /*---------------------------------------------------------------------------*/
 
  /* SF sediment focusing parameter for phytoplankton (was: ffp) */
  double wj, wj1;
@@ -1208,8 +1210,12 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    }
  }
 
- // Zooplankton migration, Z: x[i*nOS+2+nx]  
- // experimental code that allows migration in dependence of food concentration 'xg'
+ /*---------------------------------------------------------------------------*/
+ /* Zooplankton migration                                                     */
+ /* Z: x[i*nOS+2+nx]                                                          */
+ /* experimental code that allows migration in dependence of food conc. 'xg'  */
+ /*---------------------------------------------------------------------------*/
+
  // double xg;
  // int    zi  = 2+nx; // Index for Zooplankton
  // xg = 0.0;
@@ -1224,9 +1230,11 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  //   i1  = (i-1)*nOS + zi;
  //   dxx[i1+nOS] = (wj1*(x[i1] + dtt*dxx[i1]) - wj*x[i1+nOS])/(dz[i] + dtt*wj);
  // }
- 
- /* Detritus sedimentation                                        /* 18.2,  18.3  */
- /* ffd: sediment focusing parameter for allochthonous detritus                   */
+
+ /*---------------------------------------------------------------------------*/
+ /* Detritus sedimentation                                     * 18.2,  18.3  */
+ /* ffd: sediment focusing parameter for allochthonous detritus               */
+ /*---------------------------------------------------------------------------*/
  double ffd = 1;  // can also be 2;
  int    di  = 3 + nx;       // Index for Detritus
  wj  = (tff[i_wet] * (ffd-1) + 1) * VD;
@@ -1239,14 +1247,14 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    dxx[iS] = (dz[i]*x[iS] + dtt*wj1*dxx[iS-nOS])/(dz[i] + dtt*wj);
    // dxx[iS] = (dz[i]*x[iS] + dtt*wj1*are[i-1]*dz[i-1]/vau*dxx[iS-nOS])/(dz[i] + dtt*wj);
  }
+ /*---------------------------------------------------------------------------*/
+ /* Oxygen supply from the atmosphere, O: x[i*nOS+4+nx]                  15.1 */ 
+ /*---------------------------------------------------------------------------*/ 
+int    odo  = 4 + nx; // index for oxygen, exchange with 1m/d Omlin et al.2001
 
-// Oxygen supply from the atmosphere, O: x[i*nOS+4+nx]    /* 15.1 */ 
- int    odo  = 4 + nx; // index for oxygen, exchange with 1m/d Omlin et al.2001
-
- double sat = saturation(u[i_wet * nOI + utemp]);                                           /* 15.1 */ 
+ double sat = saturation(u[i_wet * nOI + utemp]);                     /* 15.1 */ 
  dxx[i_wet * nOS + odo] = x[i_wet * nOS + odo] + dtt/dz[i_wet] * 1. * (sat - x[i_wet * nOS + odo]);
 
-// -----------------------------------------------------------------------------
 
  delete [] dz;
  delete [] tff;
