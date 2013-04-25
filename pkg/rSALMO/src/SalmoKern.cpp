@@ -1,48 +1,47 @@
+/*****************************************************************************/
 /* Kernel module of SALMO 
    contains separate functions for advection, diffision and reaction
    call be called from R or any other integration interface
 
    JAVA version:         Steffen Dietze TU Ilmenau, 1997 
                          with bugfixes and extensions of thpe
-   C version             S. Rolinski        2004-01-06  
+   C version             S. Rolinski        2004 - 2008  
+                         T. Petzoldt        2008 -
 
-   Macro definitions to improve readability thpe 2008-08-01
-   Start of Rework:                         thpe 2011-04   
-   Continued:                               thpe 2011-12-18
-
-   thpe 2012-04-26: check sedimentation !!!   
-
+   Thanks to: René Sachse
 */
+/*****************************************************************************/
 
-/* uncomment the following line if you want to call this .DLL/.so from R      */
-/* and want to print to screen with Rprintf                                   */
+
+/* uncomment the following line if you want to call this .DLL/.so from R     */
+/* and want to print to screen with Rprintf                                  */
 //#define use_R true
 
 #ifdef use_R
-#include <R.h>                    // R compatibility
-#include <Rinternals.h>           // R compatibility
+#include <R.h>                    /* R compatibility */
+#include <Rinternals.h>           /* R compatibility */
 #endif
 
 #ifndef math_h
-#include <math.h>                 // needed when R headers are not used
+#include <math.h>                 /* needed when R headers are not used     */
 #endif
 
 #include <algorithm>
 using namespace std;
 
-//#include <iostream.h>           // only necessary for specific test cases
+//#include <iostream.h>           /* only necessary for specific test cases  */
 #include <iostream> 
-#include <stdio.h>                // nneded for debugging with printf
+#include <stdio.h>                /* needed for debugging with printf        */
 
-//******************************************************************************
-//  General Settings, Conventions and Helper Formulae
-//******************************************************************************            
+/*****************************************************************************/
+/*  General Settings, Conventions and Helper Formulae                        */
+/*****************************************************************************/
 
-/* Positions of Constants and Parameters in Vectors c, p und u                */
+/* Positions of Constants and Parameters in Vectors c, p und u               */
 #include "salmo_constants.h" 
 
-/* Macros to enhance readability of dynamic data structures 
-  (parameters and temporary variables for phytoplankton)                      */
+/* Macros to enhance readability of dynamic data structures                  */
+/*  (parameters and temporary variables for phytoplankton)                   */
 #include "salmo_macros.h"
 
 #include "salmo_headers.h"
@@ -63,10 +62,6 @@ double saturation(double T) {
 
 
 void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* dxq, double* dxs) {
-
- // int numberOfInputs  = nOfVar[inumberOfInputs];   // 32; now 18 + 1; length of u per layer
- // int numberOfOutputs = nOfVar[inumberOfOutputs];  //  14;
- // int numberOfStates  = nOfVar[inumberOfStates];   // 6 + o = 7;
  int np = nOfVar[inumberOfParameters];               // important for accessing "p"
  int nx = nOfVar[inumberOfPhyto];                    // number of phytoplankton groups: 3
  
@@ -100,85 +95,98 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  double O   = x[4 + nx];
  for (j = 0; j < nx; j++) G[j]  = x[4 + nx + j];
 
-/******************************************************************************/
-/* Assignment of parameters from vectors 'p' and 'c'                          */
-/*                                                                            */ 
-/* Notes:                                                                     */
-/*   - the cXXXXX constants are defined in salmo_constants.h                  */
-/*   - integration time is also contained in vector 'c'                       */
-/*   - all the XXX_j are #define macros pointing to the dynamic array pC      */
-/*   - see salmo_macros.h                                                     */
-/******************************************************************************/
- 
+ /*****************************************************************************/
+ /* Assignment of parameters from vectors 'p' and 'c'                         */
+ /*                                                                           */ 
+ /* Notes:                                                                    */
+ /*   - the cXXXXX constants are defined in salmo_constants.h                 */
+ /*   - integration time is also contained in vector 'c'                      */
+ /*   - all the XXX_j are #define macros pointing to the dynamic array pC     */
+ /*   - see salmo_macros.h                                                    */
+ /*****************************************************************************/
 
  double EPSMIN  = c[cEPSMIN];
  double ZLIGHT  = c[cZLIGHT];
  int CHLC       = (int) c[cCHLC];
- double Zres    = c[cZres];    double SF      = c[cSF];
+ double Zres    = c[cZres];    
+ double SF      = c[cSF];
  int simyear    = (int) c[csimyear];
- double ANSFMIN = c[cANSFMIN]; double APSFMAX = c[cAPSFMAX]; double APSFMIN = c[cAPSFMIN];
- double APSFT   = c[cAPSFT];   double AZMAX   = c[cAZMAX];   double AZMIN   = c[cAZMIN];
- double DTA     = c[cDTA];     double DTB     = c[cDTB];     double DTC     = c[cDTC];
+ double ANSFMIN = c[cANSFMIN]; 
+ double APSFMAX = c[cAPSFMAX]; 
+ double APSFMIN = c[cAPSFMIN];
+ double APSFT   = c[cAPSFT];   
+ double AZMAX   = c[cAZMAX];   
+ double AZMIN   = c[cAZMIN];
+ double DTA     = c[cDTA];     
+ double DTB     = c[cDTB];     
+ double DTC     = c[cDTC];
  double DTMIN   = c[cDTMIN];
- double EPSD    = c[cEPSD];  //double GI      = c[cGI];
- double GMAX    = c[cGMAX];    double GMIN    = c[cGMIN];
- double KANSF   = c[cKANSF];   double KAPSF   = c[cKAPSF];    double KDEN    = c[cKDEN];
- double KNDST   = c[cKNDST];   double KMINER  = c[cKMINER];
- double KMO     = c[cKMO];     double KPSED   = c[cKPSED];    double KSEZA   = c[cKSEZA]; 
- double KSRFMAX = c[cKSRFMAX]; double KXG     = c[cKXG];      double KXMIN   = c[cKXMIN]; 
+ double EPSD    = c[cEPSD];  
+ //double GI      = c[cGI];
+ double GMAX    = c[cGMAX];    
+ double GMIN    = c[cGMIN];
+ double KANSF   = c[cKANSF];   
+ double KAPSF   = c[cKAPSF];    
+ double KDEN    = c[cKDEN];
+ double KNDST   = c[cKNDST];   
+ double KMINER  = c[cKMINER];
+ double KMO     = c[cKMO];     
+ double KPSED   = c[cKPSED];    
+ double KSEZA   = c[cKSEZA]; 
+ double KSRFMAX = c[cKSRFMAX]; 
+ double KXG     = c[cKXG];      
+ double KXMIN   = c[cKXMIN]; 
  double KZMIN   = c[cKZMIN];
- double LGH     = c[cLGH];     double LGL     = c[cLGL];      double LINDEN  = c[cLINDEN];
- double LXH     = c[cLXH];     double LXHN    = c[cLXHN];
- double LXL     = c[cLXL];     double LXLN    = c[cLXLN];
- double MGH     = c[cMGH];     double MGL     = c[cMGL];
- double MOMIN   = c[cMOMIN];   double MOT     = c[cMOT];
- double MXH     = c[cMXH];     double MXL     = c[cMXL];
- double NDSSTART = c[cNDSSTART]; double NDSEND = c[cNDSEND];  double NDSMAX = c[cNDSMAX];
- double KNDS    = c[cKNDS];    double OPTNP   = c[cOPTNP];
+ double LGH     = c[cLGH];     
+ double LGL     = c[cLGL];      
+ double LINDEN  = c[cLINDEN];
+ double LXH     = c[cLXH];     
+ double LXHN    = c[cLXHN];
+ double LXL     = c[cLXL];     
+ double LXLN    = c[cLXLN];
+ double MGH     = c[cMGH];     
+ double MGL     = c[cMGL];
+ double MOMIN   = c[cMOMIN];   
+ double MOT     = c[cMOT];
+ double MXH     = c[cMXH];     
+ double MXL     = c[cMXL];
+ double NDSSTART = c[cNDSSTART]; 
+ double NDSEND = c[cNDSEND];  
+ double NDSMAX = c[cNDSMAX];
+ double KNDS    = c[cKNDS];    
+ double OPTNP   = c[cOPTNP];
  double PF      = c[cPF];
  double R       = c[cR];
- double RAT     = c[cRAT];     double RATF    = c[cRATF];
- double RATN    = c[cRATN];    double RATNF   = c[cRATNF];
- // double RL      = c[cRL];    double RLW     = c[cRLW];
+ double RAT     = c[cRAT];     
+ double RATF    = c[cRATF];
+ double RATN    = c[cRATN];    
+ double RATNF   = c[cRATNF];
+ // double RL      = c[cRL];    
+ double RLW     = c[cRLW];
  double RXMF    = c[cRXMF]; 
- double RZMIN   = c[cRZMIN];   double RZOPT   = c[cRZOPT];    double RZTMIN  = c[cRZTMIN];
+ double RZMIN   = c[cRZMIN];   
+ double RZOPT   = c[cRZOPT];    
+ double RZTMIN  = c[cRZTMIN];
  double EPSR    = c[cEPSR];
  double TOPTZ   = c[cTOPTZ];
  double UXZD    = c[cUXZD];
  double VD      = c[cVD];    
  //double VMIG    = c[cVMIG];
- double WPKX    = c[cWPKX];    double WPKZ    = c[cWPKZ];
- double YD      = c[cYD];      double YND     = c[cYND];      double YNX     = c[cYNX]; 
- double YOX     = c[cYOX];     double YZN     = c[cYZN];
+ double WPKX    = c[cWPKX];    
+ double WPKZ    = c[cWPKZ];
+ double YD      = c[cYD];      
+ double YND     = c[cYND];      
+ double YNX     = c[cYNX]; 
+ double YOX     = c[cYOX];     
+ double YZN     = c[cYZN];
  double YZP     = c[cYZP];
  // bool densed    = false;
-
-// ThPe, 2012-08-24
-// ifdef macros for compatibility with older versions
-// just compile SalmoKern.cpp with older salmo_constants.h
-// Note: the fixed parameter macros are only temporary 
-//       until all code versions are consolidated
-#ifdef cKO
  double SEZMAX  = c[cSEZMAX];
  double KO      = c[cKO];
-#else
- double SEZMAX = 0.4;
- double KO = 0;
-#endif
-
-#ifdef cXminermode
- double VO2ATM = c[cVO2ATM];      // atmospaeric re-aereations (mg/m)
+ double VO2ATM = c[cVO2ATM];      // atmospaeric re-aereation (mg/m)
  int npsfmode  = c[cNpsfmode];    // true: P release only nitrate dependent (shallow lakes)
  int srfmode   = c[cSrfmode];     // true: srf column is strong rain factor; false: is epsmin
  int xminermode = c[cXminermode]; // way to calculate oxygen depletion of X and D sedimentation
-                                  // 0 = salmo standard, 1 = Rene Sachse, 3 = future extensions
-#else
- double VO2ATM = 1.0;
- int npsfmode  = false; 
- int srfmode   = true; 
- int xminermode = 0;    
-#endif
-
 
 
 // --- testing code ---
@@ -217,13 +225,13 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
     Note assignments in salmo_macros.h                                        */
  double *cB  = new double[nx*(cB_rows+1)];
 
-/******************************************************************************/
-/* Assign elements of input matrix                                            */
-/* here "u" contains data for one layer with depth information                */
-/* In R use:                                                                  */
-/*   u1 <- cbind(t, v, zmixreal, zmix, qin, qout,                             */
-/*     srf, iin, te, nin, pin, pomin, x1in, x2in, zin, oin, ae, ah)           */
-/******************************************************************************/
+ /*****************************************************************************/
+ /* Assign elements of input matrix                                           */
+ /* here "u" contains data for one layer with depth information               */
+ /* In R use:                                                                 */
+ /*   u1 <- cbind(t, v, zmixreal, zmix, qin, qout,                            */
+ /*     srf, iin, te, nin, pin, pomin, x1in, x2in, zin, oin, ae, ah)          */
+ /*****************************************************************************/
 
  double t        = u[undt];
  double v        = u[uvol];
@@ -284,7 +292,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    }
  }  
 
- /* light extinction due to phytoplankton and detritus */
+ /* light extinction due to phytoplankton and detritus                        */
  double epsxi = 0;
  for (j = 0;j < nx;j++) epsxi = epsxi + EPSX_j * X[j];
  eps = (eps + epsxi + EPSD * D);                                      /* 7.2  */ 
@@ -317,7 +325,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    phoxp_j    = P / X[j] / ((KP_j + P) / kx + (KP_j + P) / X[j]);     /* 9.9  */
 
 
- /* N-Limitation or P-Limitation or N Fixation */
+ /* N-Limitation or P-Limitation or N Fixation                                */
  for (j = 0;j < nx;j++) {
    if ((N / P < OPTNP) && (NFIX_j < 0.0001))                          /* 9.6  */
      phoxns_j = phoxn_j;
@@ -416,18 +424,18 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  
   //printf("dGamma[0], Gamma[0], iin: %f    %f   %f\n", dG[0], G[0], ired);
  /******************************************************************************/
- /* Calculations for nrem                                                      */
+ /* Calculations for nrem (remineralisation of nitrogen)                       */
  /******************************************************************************/
 
  double kzd, hwgdbd, hwgdd, sumxpf, kz, gdb, gd, hwgd, g, g3d, hwgi;
  double az, assiz, rzt, rzg, rz, wz, egg, nexkr, nrem, dt;
 
- double mortz = (MOMIN + MOT * temp) * Z / (KMO + Z);                /* 12.12 */
- double nmort = mortz * RATNF / YZN;                                 /*  1.4  */
+ double mortz = (MOMIN + MOT * temp) * Z / (KMO + Z);                 /* 12.12 */
+ double nmort = mortz * RATNF / YZN;                                  /*  1.4  */
  double gdt = (GMAX - GMIN) * exp(-R * fabs(log(temp / TOPTZ))) + GMIN; /* 9.22 */
  
 
-// ToDo: Reformulate remaining occurences of cB and pC 
+ // ToDo: Reformulate remaining occurences of cB and pC 
 
  cB[nx-1 + nx*ipf] = pC[nx-1 + nx*pPFC];                              /* 9.25 */
  double xsum = 0;
@@ -800,33 +808,13 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  dxs[3 + nx] = dDs;
  dxs[4 + nx] = dOs;
 
- /* changed environment vector */
- u[undt] = eps;     //  Light extincion coefficient at bottom of the layer (changed by phytopl. and detritus)
- u[uiin] = ibottom; //  value of Light at the bottom of the layer
+ /* Changed environment vector used for returning boundary conditions !!    */
+ /*  Light extintcion coefficient at bottom of the layer                    */
+ /*  is changed by phytopl. and detritus                                    */
+ u[undt] = eps;     
+ u[uiin] = ibottom; //  light intensity at the bottom of the layer
 
-// ==== Code for testing the R interface ===
-// --- assign values to "uu" for debugging purposes (thpe)
-// u[0] = YZN;
-// j = 0;
-// u[1] = YX_j;
-// j = 1;
-// u[2] = YX_j;
-// j = 2;
-// u[3] = YX_j;
-// u[0] = dXq[0]; 
-// u[1] = apsf; 
-// u[2] = dXs[0]; 
-// u[3] = dXs[1];  /* Festlegung der gewaesserspezifischen Parameter */
-// u[4] = cB[0+nx*iphotx];
-// u[5] = cB[1+nx*iphotx];
-// u[6] = dilution;
-// u[8] = cB[0+nx*irx];
-// u[9] = cB[1+nx*irx];
-// u[10] = pin; //xgraz[0];
-// u[11] = pim; //xgraz[1];
-
-// ==== end testing ==============================
-
+ /* cleanup of dynamic variables */
  delete [] X;
  delete [] dXq;
  delete [] dXs;
@@ -836,16 +824,16 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  delete [] cB;
  delete [] xmineralisation;
 } 
-
-/******************************************************************************/
+/*============================================================================*/
 /* End of derivatives                                                         */
+/*============================================================================*/
+
 /******************************************************************************/
- 
-
-
-// Die Funktion all_layers greift aus den Inputgroessen for alle Schichten 
-// nacheinander die einzelnen Schichten heraus und uebergibt sie an Salmo. 
-// Zurueck kommen die dx-Werte pro Schicht; an austausch geht der Gesamtvektor dx
+/* Function all_layers takes successively all individual levels               */
+/* from the input values and passes them to Salmo                             */
+/* returned are the derivatives (dx) per layer, the                           */
+/* full dx vecrot is then passed to "austausch"                               */
+/******************************************************************************/
 
 void all_layers(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
@@ -893,9 +881,9 @@ void all_layers(int* nOfVar, double* c, double* p, double* u, double* x, double*
 
      for (int j = 0; j < nOS; j++) { 
        hxh = xx[j] + dtt * ds[j];
-//       dxx[i*nOS + j] = (xx[j] + dtt*dq[j])/hxh*xx[j];  
+       // dxx[i*nOS + j] = (xx[j] + dtt*dq[j])/hxh*xx[j];  
        if (fabs(hxh) > 1e-100) { dxx[i*nOS + j] = (xx[j] + dtt*dq[j])/hxh*xx[j];  
-//       } else { dxx[i*nOS + j] = xx[j]; }
+         // } else { dxx[i*nOS + j] = xx[j]; }
          // as an alternative for small sink: Euler
        } else { 
          dxx[i*nOS + j] = xx[j] + dtt * dq[j]; 
@@ -909,37 +897,29 @@ void all_layers(int* nOfVar, double* c, double* p, double* u, double* x, double*
    }
  } // End of loop over all layers
 
-// -----------------------------------------------------------------------------
-
  delete [] uu;
  delete [] xx;
  delete [] dq; 
  delete [] ds; 
 }
 
-//******************************************************************************
-
-/*
-  Function for_runge takes the single layers from inputs of all layers and
-  passes  this to Salmo.
-  The returned values are the dx values per layer, 
-  and the full vector dx is then passed to "austausch"
-*/
-
-// Die Funktion for_runge greift aus den Inputgroessen fuer alle Schichten 
-// nacheinander die einzelnen Schichten heraus und uebergibt sie an Salmo. 
-// Zurueck kommen die dx-Werte pro Schicht; an austausch geht der Gesamtvektor dx
+/*****************************************************************************/
+/*  Function for_runge takes the single layers from inputs of all layers and */
+/*  passes this to Salmo.                                                    */
+/*  The returned values are the dx values per layer,                         */
+/*  and the full vector dx is then passed to "austausch"                     */
+/*****************************************************************************/
 
 void for_runge(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
- int nOI = nOfVar[inumberOfInputs]; // numberOfInputs; originally 32; now 21; important for "u"
- int nOS = nOfVar[inumberOfStates]; // numberOfStates; formerly 6; now + O2 = 7
- int nl  = nOfVar[inumberOfLayers]; // numberOfLayers; number of layers
- int i_wet = 0;       // start of wet boxes; first layer that is calculated
+ int nOI = nOfVar[inumberOfInputs];
+ int nOS = nOfVar[inumberOfStates];
+ int nl  = nOfVar[inumberOfLayers];
+ int i_wet = 0;  // start of wet boxes; first layer that is calculated
 
  // ToDo: change this to a while loop to avoid unnecessary copying of redundant data
  for (int i = 0; i < nl; i++) {
-   if (u[i * nOI + 1] < -10)  i_wet++; else break;
+   if (u[i * nOI + 1] < -10) i_wet++; else break;
  }
  
 
@@ -953,34 +933,30 @@ void for_runge(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  }
  double vau;
 
-// -----------------------------------------------------------------------------
-//              Reaction
-// -----------------------------------------------------------------------------
-
- for (int i = i_wet; i < nl; i++) {          // Loop over all layers
+ /* Reaction ------------------------------------------------------------------*/
+ for (int i = i_wet; i < nl; i++) { // Loop over all layers
    vau = u[i * nOI + uvol];
    if (vau > 1E-5) {
-//     for (int j = 0; j < nOS; j++)  xx[j] = x[i*nOS + j];
-//     for (int j = 0; j < nOI; j++)  uu[j] = u[i*nOI + j]; 
-
-    // Call Salmo kernel for layer i
-    // -> pass u and x for this layer
-    
-    // if c[cSF] > 0 then internal sedimentation to sediment is switched on 
-    // and SF for current layer is passed to SalmoKern
-    // otherwise internal sedimentation will be multiplied by 0 and therefore
-    // practically is switched off
+     // for (int j = 0; j < nOS; j++)  xx[j] = x[i*nOS + j];
+     // for (int j = 0; j < nOI; j++)  uu[j] = u[i*nOI + j]; 
+     // Call Salmo kernel for layer i
+     // -> pass u and x for this layer
+     // if c[cSF] > 0 then internal sedimentation to sediment is switched on 
+     // and SF for current layer is passed to SalmoKern
+     // otherwise internal sedimentation will be multiplied by 0 and therefore
+     // practically is switched off
 
      if (c[cSF] > 0) c[cSF] = u[i * nOI + usf];
 
      SalmoKern(nOfVar, c, p, &u[i*nOI], &x[i*nOS], dq, ds); 
-//     SalmoKern(nOfVar, c, p, uu, xx, dq, ds); 
+     // SalmoKern(nOfVar, c, p, uu, xx, dq, ds); 
 
      // pass light intensity at bottom of layer to the next layer
-     if (i < (nl - 1)) { u[(i+1)*nOI + uiin] = u[uiin + i * nOI]; }
-//     if (i < (nl-1)) { u[(i+1)*nOI + uiin] = uu[uiin]; }
-//     int j = undt; u[i*nOI + j] = uu[j];                // pass extinction coefficient
-
+     if (i < (nl - 1)) { 
+       u[(i+1)*nOI + uiin] = u[uiin + i * nOI]; 
+     }
+     // if (i < (nl-1)) { u[(i+1)*nOI + uiin] = uu[uiin]; }
+     // int j = undt; u[i*nOI + j] = uu[j]; // pass extinction coefficient
      // check
      // for (int j = 0; j < 2; j++) u[i*nOI + j] = uu[j]; 
 
@@ -990,32 +966,23 @@ void for_runge(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    }
  } // End loop over all layers
 
-// -----------------------------------------------------------------------------
-
-// delete [] uu;
-// delete [] xx;
+ /* cleanup dynamic variables */
  delete [] dq; 
  delete [] ds; 
 }
 
-/*
-  This function calculates diffusion between the layers by using the 
-  diffusion coefficient from the hydrodynamic model, where
-  it uses a simple Gauss Solver for the implicit calculation.
-*/
-
-//******************************************************************************
-// Die Funktion diffusion berechnet die Diffusion zwischen den Schichten
-// mithilfe des Diffusionskoeffizienten (aus LAKE)
-// for die implizite Berechnung wird der einfache Gauss-Löser verwendet.
-//******************************************************************************
+/*****************************************************************************/
+/*  This function calculates diffusion between the layers by using the       */
+/*  diffusion coefficient from the hydrodynamic model                        */
+/*  It uses a simple Gauss Solver for the implicit calculation.              */
+/*****************************************************************************/
 
 void diffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
- int nOI = nOfVar[inumberOfInputs];    // numberOfInputs; formerly 32; now 19; important for addressing "u"
- int nOS = nOfVar[inumberOfStates];    // numberOfStates; 6; jetzt + O2 = 7
-// int nx  = nOfVar[inumberOfPhyto];  // numberOfAlgae; 2, number of phytoplankton groups
- int nl  = nOfVar[inumberOfLayers];    // numberOfLayers; number of layers
+ int nOI = nOfVar[inumberOfInputs];
+ int nOS = nOfVar[inumberOfStates];
+// int nx  = nOfVar[inumberOfPhyto];
+ int nl  = nOfVar[inumberOfLayers];
  int i_wet = 0;          // index of first wet box, that is calculated
  double dtt = c[cdtt];   // actual time step
 
@@ -1030,15 +997,11 @@ void diffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  double *dz   = new double[nl]; 
  double az, bj, bu;
 
-// -----------------------------------------------------------------------------
-//              Diffusion (new version)
-// -----------------------------------------------------------------------------
-
-  for (int i = 0; i < nl; i++) {
+ for (int i = 0; i < nl; i++) {
    if (u[i * nOI + 1] < -10)  i_wet++; else break;
  }
 
- // area, calculated as sum of all sediment contact areas
+ /* area, calculated as sum of all sediment contact areas  */
  are[nl-1] = u[(nl-1)*nOI + uased];  
  for (int i = nl-2; i >= i_wet; i--) { are[i] = u[(i+1)*nOI + uased] + are[i+1]; }
  dz[i_wet] = u[i_wet * nOI + udepth];
@@ -1054,7 +1017,7 @@ void diffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    bet[i] = 0;
  }
 
- int i = i_wet;                       // for first layer
+ int i = i_wet; // for first layer
  az = 0.25*(are[i]+are[i+1])*(dz[i] + dz[i+1]);
  bj = are[i]*u[i*nOI + uDi]/dz[i];
  bu = are[i+1]*u[(i+1)*nOI + uDi]/dz[i+1];
@@ -1079,25 +1042,25 @@ void diffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  cc[i] = 0;
  dd[i] = az;
  
- // First part of tridiagonal matrix determination
+ /* First part of tridiagonal matrix determination */
  alp[i_wet] = bb[i_wet];        
  for (int i = i_wet+1; i < nl; i++) {
-  qq[i] = -aa[i]/alp[i-1];
-  alp[i] = bb[i] + qq[i]*cc[i-1];
+   qq[i] = -aa[i]/alp[i-1];
+   alp[i] = bb[i] + qq[i]*cc[i-1];
  }
- // Second part of tridiagonal matrix determination and solution
+ /* Second part of tridiagonal matrix determination and solution */
  for (int j = 0; j < nOS; j++) { 
-  bet[i_wet] = dd[i_wet]*x[i_wet*nOS + j];
-  for (int i = i_wet+1; i < nl; i++) {
-   bet[i] = dd[i]*x[i*nOS + j] + qq[i]*bet[i-1];
-  }
-  int i = nl-1;
-  dxx[i*nOS + j] = bet[i]/alp[i];
-  for (int i = nl-2; i >= i_wet; i--) {
-   dxx[i*nOS + j] = (bet[i] - cc[i]*dxx[(i+1)*nOS + j])/alp[i];
-  }
+   bet[i_wet] = dd[i_wet]*x[i_wet*nOS + j];
+   for (int i = i_wet+1; i < nl; i++) {
+     bet[i] = dd[i]*x[i*nOS + j] + qq[i]*bet[i-1];
+   }
+   int i = nl-1;
+   dxx[i*nOS + j] = bet[i]/alp[i];
+   for (int i = nl-2; i >= i_wet; i--) {
+     dxx[i*nOS + j] = (bet[i] - cc[i]*dxx[(i+1)*nOS + j])/alp[i];
+   }
  }
- 
+ /* free dynamic variables */
  delete [] are;
  delete [] aa;
  delete [] bb;
@@ -1107,80 +1070,74 @@ void diffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  delete [] alp;
  delete [] bet;
  delete [] dz;
-// -----------------------------------------------------------------------------
 }
 
 
-
-/*  This function calculates diffusion between the layers using the           */
-/*  traditional diffusion coefficients "au" and "ad".                         */
+/*****************************************************************************/
+/*  This function calculates diffusion between the layers using the          */
+/*  traditional diffusion coefficients "au" and "ad".                        */
+/*****************************************************************************/
 
 
 void fddiffusion(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
- int nOI  = nOfVar[inumberOfInputs];  // formerly 32; now 19; important for addressing "u"
- int nOS  = nOfVar[inumberOfStates];  // default: 7
-// int nx   = nOfVar[inumberOfPhyto]; // number of phytoplankton groups: 3
- int nl   = nOfVar[inumberOfLayers];  // number of layers
- int kvau = (int) uvol;               // index for the volume
- int kup  = (int) uau;                // index for exchange with upper layer
- int kdo  = (int) uad;                // index for exchange with lower layer
+ int nOI  = nOfVar[inumberOfInputs];
+ int nOS  = nOfVar[inumberOfStates];
+// int nx   = nOfVar[inumberOfPhyto];
+ int nl   = nOfVar[inumberOfLayers];
+ int kvau = (int) uvol;
+ int kup  = (int) uau;
+ int kdo  = (int) uad;
  int ij;
  double au, ad;
-
-// -----------------------------------------------------------------------------
-//              Diffusion
-// -----------------------------------------------------------------------------
 
  int i = 0;                         // for the first layer
  double vauo = 0;
  double vau  = u[i*nOI + kvau];
  double vauu = u[(i+1)*nOI + kvau];
  if (i < (nl-1)) {
-  if ((vau+vauu) > 1e-5) {
-   au = u[(i+1)*nOI + kup];
-   for (int j = 0; j < nOS; j++) {
-    ij = i*nOS + j;
-    dxx[ij] = au * (x[ij + nOS] - x[ij])/(vau+vauu);
+   if ((vau+vauu) > 1e-5) {
+     au = u[(i+1)*nOI + kup];
+     for (int j = 0; j < nOS; j++) {
+       ij = i*nOS + j;
+       dxx[ij] = au * (x[ij + nOS] - x[ij])/(vau+vauu);
+     }
    }
-  }
  }
  for (int i = 1; i < (nl-1); i++) { // for 2nd ... (nl-1)st layer
-  vauo = u[(i-1)*nOI + kvau];
-  vau  = u[i*nOI + kvau];
-  vauu = u[(i+1)*nOI + kvau];
-  if ((vau+vauu+vauo) > 1e-5) {
-   au = u[(i+1)*nOI + kup];
-   ad = u[(i-1)*nOI + kdo]; 
-   for (int j = 0; j < nOS; j++) {
-    ij = i*nOS + j;
-    dxx[ij] = ( ad * (x[ij - nOS] - x[ij]) + 
+   vauo = u[(i-1)*nOI + kvau];
+   vau  = u[i*nOI + kvau];
+   vauu = u[(i+1)*nOI + kvau];
+   if ((vau+vauu+vauo) > 1e-5) {
+     au = u[(i+1)*nOI + kup];
+     ad = u[(i-1)*nOI + kdo]; 
+     for (int j = 0; j < nOS; j++) {
+       ij = i*nOS + j;
+       dxx[ij] = ( ad * (x[ij - nOS] - x[ij]) + 
                 au * (x[ij + nOS] - x[ij]) )/(vauo+vau+vauu);
+     }
    }
-  }
  }
  i = nl-1;                          // for last layer
  vauo = u[(i-1)*nOI + kvau];
  vau  = u[i*nOI + kvau];
  if (i > 0) {
-  if ((vau+vauo) > 1e-5) {
-   ad = u[(i-1)*nOI + kdo]; 
-   for (int j = 0; j < nOS; j++) {
-    ij = i*nOS + j;
-    dxx[ij] = ad * (x[ij - nOS] - x[ij])/(vauo+vau);
+   if ((vau+vauo) > 1e-5) {
+     ad = u[(i-1)*nOI + kdo]; 
+     for (int j = 0; j < nOS; j++) {
+       ij = i*nOS + j;
+      dxx[ij] = ad * (x[ij - nOS] - x[ij])/(vauo+vau);
+     }
    }
-  }
  }
-
-// -----------------------------------------------------------------------------
 }
 
-/*
- The following function calculates all processes considered as advection
- including sedimentation, vertical migration and oxygen exchange with the
- atmosphere.
- It returns either dx values (derivatives) or new states for implicit schemes??
-*/
+/*****************************************************************************/
+/* The following function calculates all processes considered as advection   */
+/* including sedimentation, vertical migration and oxygen exchange with the  */
+/* atmosphere.                                                               */
+/* It returns either dx (derivatives) or new states for implicit schemes     */
+/*****************************************************************************/
 
 void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* dxx) {
 
@@ -1189,26 +1146,25 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  int np   = nOfVar[inumberOfParameters];
  int nx   = nOfVar[inumberOfPhyto];
  int nl   = nOfVar[inumberOfLayers];
- int i_wet = 0;                     // index of first wet box that is calculated
- double dtt = c[cdtt];              // actual time step
+ int i_wet = 0;                   // index of first wet box that is calculated
+ double dtt = c[cdtt];            // actual time step
 
  double *dz  = new double[nl];
  double *VS  = new double[nx];
  for (int i = 0; i < nOS; i++) {
-  for (int j = 0; j < nl; j++) { dxx[i*nl + j]  = x[i*nl + j]; };
+   for (int j = 0; j < nl; j++) { dxx[i*nl + j]  = x[i*nl + j]; };
  }
  for (int j = 0; j < nx; j++) {   
-  int phyn    = (int) p[j*np];
-  VS[j]       = p[phyn*np+pVS]; 
+   int phyn    = (int) p[j*np];
+   VS[j]       = p[phyn*np+pVS]; 
  }
  for (int i = 0; i < nl; i++) { dz[i]  = 0.0; }
  double VD    = c[cVD]; 
  double SF    = c[cSF];
 // double VMIG  = c[cVMIG];
       
-// -----------------------------------------------------------------------------
-//              Advection
-// -----------------------------------------------------------------------------
+
+ /* Advection ----------------------------------------------------------------*/
 
  /* depth-dependent linear function for weighting the sediment rate           */
  double *tff  = new double[nl]; 
@@ -1218,7 +1174,7 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  int iS;
  int iA = uaver;
 
-  for (int i = 0; i < nl; i++) {
+ for (int i = 0; i < nl; i++) {
    if (u[i * nOI + 1] < -10)  i_wet++; else break;
  }
 
@@ -1229,16 +1185,13 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    dz[i]  = u[i * nOI + udepth] - u[(i-1) * nOI + udepth]; 
  }
 
- //are[nl-1] = u[(nl-1)*nOI + uased];  // area, calculated from sediment contact depth
+ //are[nl-1] = u[(nl-1)*nOI + uased];  // area, calc. from sediment contact depth
  //are[nl-2] = u[(nl-1)*nOI + uased];  // interface depth at bottom
  //for (int i = nl-3; i >= 0; i--) { are[i] = u[(i+1)*nOI + kf] + are[i+1]; }
 
-/* Phytoplankton sedimentation, Xi: x[i*nOS + 2 + 0:(nx-1)]   9.16, 9.17  */
+ /* Phytoplankton sedimentation                                     9.16, 9.17  */
 
-// ffp: experimental factor for sedimentation rate in deeper layers
-// that is linearly adapted
-// now: SF sediment focusing parameter
-// double ffp = 1; //5; 
+ /* SF sediment focusing parameter for phytoplankton (was: ffp) */
  double wj, wj1;
  for (int j = 0; j < nx; j++) {       // loop over all phytoplankton groups
    int ix = 2 + j;                    // Index for Xi
@@ -1255,25 +1208,26 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    }
  }
 
-// Zooplankton migration, Z: x[i*nOS+2+nx]  
-// expperimental code that allows migration in dependence of food concentration 'xg'
-// double xg;
-// int    zi  = 2+nx; // Index for Zooplankton
-// xg = 0.0;
-// for (int j = 0; j < nx; j++) { xg += x[2+j]; }
-// wj = -2*(0.2+exp(-1.47*0.005*xg));
-// dxx[zi] =  -  wj * x[zi]/(dz[0] + dtt*wj);
-// for (int i = 1; i < nl; i++) {       
-//  xg = 0.0;
-//  for (int j = 0; j < nx; j++) { xg += x[i*nOS+2+j]; }
-//  wj1 = wj;
-//  wj  = -2*(0.2+exp(-1.47*0.005*xg));
-//  i1  = (i-1)*nOS + zi;
-//  dxx[i1+nOS] = (wj1*(x[i1] + dtt*dxx[i1]) - wj*x[i1+nOS])/(dz[i] + dtt*wj);
-// }
+ // Zooplankton migration, Z: x[i*nOS+2+nx]  
+ // experimental code that allows migration in dependence of food concentration 'xg'
+ // double xg;
+ // int    zi  = 2+nx; // Index for Zooplankton
+ // xg = 0.0;
+ // for (int j = 0; j < nx; j++) { xg += x[2+j]; }
+ // wj = -2*(0.2+exp(-1.47*0.005*xg));
+ // dxx[zi] =  -  wj * x[zi]/(dz[0] + dtt*wj);
+ // for (int i = 1; i < nl; i++) {       
+ //   xg = 0.0;
+ //   for (int j = 0; j < nx; j++) { xg += x[i*nOS+2+j]; }
+ //   wj1 = wj;
+ //   wj  = -2*(0.2+exp(-1.47*0.005*xg));
+ //   i1  = (i-1)*nOS + zi;
+ //   dxx[i1+nOS] = (wj1*(x[i1] + dtt*dxx[i1]) - wj*x[i1+nOS])/(dz[i] + dtt*wj);
+ // }
  
-// Detritus sedimentation, D: x[i*nOS+3+nx]  /* 18.2  */ /* 18.3  */
- double ffd = 1;  //2;     // factor for sedimentation rate in deeper layers that is linearly adapted
+ /* Detritus sedimentation                                        /* 18.2,  18.3  */
+ /* ffd: sediment focusing parameter for allochthonous detritus                   */
+ double ffd = 1;  // can also be 2;
  int    di  = 3 + nx;       // Index for Detritus
  wj  = (tff[i_wet] * (ffd-1) + 1) * VD;
  dxx[i_wet*nOS+di] =  dz[i_wet] * x[i_wet*nOS+di]/(dz[i_wet] + dtt*wj);
@@ -1303,7 +1257,7 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
 
 
 /******************************************************************************/
-/* External Interface                                                         */
+/* External Interface for calling from C, Delphi, Fortran, R                  */
 /******************************************************************************/
 
 extern "C" {
@@ -1339,4 +1293,3 @@ extern "C" {
 
 }
 
-//******************************************************************************
