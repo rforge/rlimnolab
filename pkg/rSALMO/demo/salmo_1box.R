@@ -43,27 +43,26 @@ data(pp)  # phytoplankton parameters, matrix with 1 column per phytopl. species
 forc <- with(bautzen1997, 
   data.frame(
     time   = t,
-    vol    = v,
-    depth  = s - 154,
-    dz     = 5, #zmix,
-    qin    = qin,
-    ased   = 0,
-    srf    = 0,     # <-----
-    iin    = iin,
-    temp   = temp,
-    nin    = nin,
-    pin    = pin,
-    pomin  = pomin,
-    zin    = zin,
-    oin    = o2sat(temp),
-    aver   = 0,
-    ad     = 0,
-    au     = 0,
-    diff   = 0,
-    x1in   = xin1,
-    x2in   = xin2,
-    x3in   = 0,
-    sf     = 1      # <-----
+    vol    = v,          # volume (m^3)
+    depth  = s - 154,    # actual depth of the lake (m)
+    dz     = 5,          # zmix, or layer depth (m)
+    qin    = qin,        # water inflom (m^3 d^-1)
+    ased   = 0,          # sediment contact area of the layer (m^2 ??)
+    srf    = 0,          # strong rain factor, an empirical index of turbidity 
+    iin    = iin,        # photosynthetic active radiation (J cm^2 d^-1); approx 50% of global irradiation
+    temp   = temp,       # water temperature (deg. C)
+    nin    = nin,        # DIN concentration in inflow (mg L^-1)   
+    pin    = pin,        # DIP concentratioin in inflow (mg? L^-1)
+    pomin  = pomin,      # particulate organic matter in inflow, wet weight (mg L^-1)
+    zin    = zin,        # zooplankton in inflow (w.w. mg L^-1)
+    oin    = o2sat(temp),  # oxygen concentration in inflow (mg L^-1)
+    aver   = 0,          # sediment contact area ratio
+    ad     = 0,          # downwards flux between layers (m^3 d^-1)  
+    au     = 0,          # upwards flux between layers (m^3 d^-1)
+    diff   = 0,          # eddy diffusion coefficient 
+    x1in   = xin1,       # phytoplankton import of group 1 (w.w. mg L^-1)
+    x2in   = xin2,       # phytoplankton import of group 2 (w.w. mg L^-1)       
+    x3in   = 0           # phytoplankton import of group 3 (w.w. mg L^-1)
   )
 )
 forc <- as.matrix(forc)

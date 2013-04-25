@@ -2,7 +2,7 @@
 
 library(deSolve)                       # numerical integrator
 library(ReacTran)                      # 1D transport
-library(simlake)
+library(rSALMO)
 
 data(cc)  # unique SALMO parameters, vector
 data(pp)  # phytoplankton parameters, matrix with 1 column per phytopl. species 

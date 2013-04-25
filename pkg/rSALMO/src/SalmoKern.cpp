@@ -133,7 +133,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  double KNDST   = c[cKNDST];   
  double KMINER  = c[cKMINER];
  double KMO     = c[cKMO];     
- double KPSED   = c[cKPSED];    
+ //double KPSED   = c[cKPSED];    
  double KSEZA   = c[cKSEZA]; 
  double KSRFMAX = c[cKSRFMAX]; 
  double KXG     = c[cKXG];      
@@ -163,8 +163,8 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  double RATF    = c[cRATF];
  double RATN    = c[cRATN];    
  double RATNF   = c[cRATNF];
- // double RL      = c[cRL];    
- double RLW     = c[cRLW];
+ //double RL      = c[cRL];    
+ //double RLW     = c[cRLW];
  double RXMF    = c[cRXMF]; 
  double RZMIN   = c[cRZMIN];   
  double RZOPT   = c[cRZOPT];    
@@ -185,7 +185,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  // bool densed    = false;
  double SEZMAX  = c[cSEZMAX];
  double KO      = c[cKO];
- double VO2ATM = c[cVO2ATM];      // atmospaeric re-aereation (mg/m)
+ // double VO2ATM = c[cVO2ATM];      // atmospaeric re-aereation (mg/m)
  int npsfmode  = c[cNpsfmode];    // true: P release only nitrate dependent (shallow lakes)
  int srfmode   = c[cSrfmode];     // true: srf column is strong rain factor; false: is epsmin
  int xminermode = c[cXminermode]; // way to calculate oxygen depletion of X and D sedimentation
@@ -529,7 +529,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  nrem    = (nmort + nexkr) * Z;                                       /* 1.3  */
 
  /*---------------------------------------------------------------------------*/
- /* N release resp. denitirication at the sediment surface                    */
+ /* N release resp. denitrification at the sediment surface                   */
  /*---------------------------------------------------------------------------*/
  double ansfq,ansfs;
  if ((NDSSTART <= fmod(t,simyear)) && (fmod(t,simyear) < NDSEND)) {
@@ -575,7 +575,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    if(oplusn <= LINDEN) {                                             /* 4.10 */
      apsf = APSFMAX; 
    } else {
-     apsf = APSFMAX /(oplusn-LINDEN) /(1 /(KAPSF - LINDEN) + 1/(oplusn - LINDEN)) + APSFMIN; 
+     apsf = APSFMAX /(oplusn - LINDEN) /(1 /(KAPSF - LINDEN) + 1/(oplusn - LINDEN)) + APSFMIN; 
    }
  } else {/* only NO3-dependent                                                */
    double klinden = 0.3 * LINDEN;
@@ -1170,7 +1170,8 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  double *tff  = new double[nl]; 
  //double *are  = new double[nl];        // area of all layers
  double mt = u[(nl-1) * nOI + udepth];   // maximum depth
- double vau, vauj;
+ //double vau, vauj;
+ double vau;
  int iS;
  int iA = uaver;
 
@@ -1203,7 +1204,7 @@ void advection(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    for (int i = i_wet + 1; i < nl; i++) {       
      wj1 = wj;
      wj = (1 + SF * (u[i * nOI + iA] - 1)) * VS[j];
-     vauj = vau;
+     //vauj = vau;
      vau = u[i * nOI + uvol];
      iS  = i * nOS + ix;
      dxx[iS] = (dtt * wj1 * dxx[iS - nOS] + dz[i] * x[iS])/(dz[i] + dtt * wj);
