@@ -237,7 +237,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
 
  double t        = u[undt];
  double v        = u[uvol];
- double tief     = u[udepth]; // water depth of lower boundary of layer
+ double depth    = u[udepth]; // water depth of lower boundary of layer
  double zmix     = u[uzmix];  // layer depth
  double qin      = u[uqin];
  double ased     = u[uased];  // former qout is now sediment contact area of layer
@@ -602,8 +602,8 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
    // bx[j]    = VS[j] / zmix;
 
    /* Zres: resuspension depth */
-   if (tief > Zres) 
-     bx_j = VS_j/zmix *SF*(1 - aver);                                 /* 9.17 */
+   if (depth > Zres) 
+     bx_j = VS_j/zmix * SF * (1 - aver);                              /* 9.17 */
    else 
      bx_j = 0;
   
@@ -624,7 +624,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  /* Calculations for dsed, dgraz                                              */
  /*---------------------------------------------------------------------------*/
  double bd       = 0;
- if (tief > Zres) 
+ if (depth > Zres) 
    bd     = VD / zmix * SF * (1 - aver);                             /* 18.3  */
 
  double dsed   = bd * D;                                             /* 18.2  */
