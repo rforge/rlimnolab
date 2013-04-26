@@ -10,6 +10,10 @@ library(rSALMO)
 ###    - add functions or data set to handle hypsographic function
 ###    - create 2 cbind() forcing matrices for epi- and hypolimnion
 ###    - implement details of function SALMO.2box
+### Open Tasks
+###    - sediment area
+###    - depth
+###    - oxygen
 ### ========================================================
 
 
@@ -17,12 +21,12 @@ library(rSALMO)
 data(bautzen1997)
 
 ## Reformat old-style input data structure into new structure
-forc <- with(bautzen1997,
+forcE <- with(bautzen1997,
              data.frame(
                time   = t,          # simulation time (in days)
-               vol    = v,          # volume (m^3)
+               vol    = ve,          # volume (m^3)
                depth  = s - 154,    # actual depth of the lake (m)
-               dz     = 5,          # zmix, or layer depth (m)
+               dz     = zmix,          # zmix, or layer depth (m)
                qin    = qin,        # water inflom (m^3 d^-1)
                ased   = 0,          # sediment contact area of the layer (m^2 ??)
                srf    = srf,        # strong rain factor, an empirical index of turbidity
@@ -32,18 +36,48 @@ forc <- with(bautzen1997,
                pin    = pin,        # DIP concentratioin in inflow (mug L^-1)
                pomin  = pomin,      # particulate organic matter in inflow, wet weight (mg L^-1)
                zin    = zin,        # zooplankton in inflow (w.w. mg L^-1)
-               oin    = o2sat(temp),  # oxygen concentration in inflow (mg L^-1)
+               oin    = oin,  # oxygen concentration in inflow (mg L^-1)
                aver   = 1,          # ratio of sediment contact area to total area
                ad     = 0,          # downwards flux between layers (m^3 d^-1)
                au     = 0,          # upwards flux between layers (m^3 d^-1)
                diff   = 0,          # eddy diffusion coefficient
-               x1in   = 0, # xin1,       # phytoplankton import of group 1 (w.w. mg L^-1)
-               x2in   = 0, # xin2,       # phytoplankton import of group 2 (w.w. mg L^-1)
-               x3in   = 0           # phytoplankton import of group 3 (w.w. mg L^-1)
+               x1in   = xin1,       # phytoplankton import of group 1 (w.w. mg L^-1)
+               x2in   = xin2,       # phytoplankton import of group 2 (w.w. mg L^-1)
+               x3in   = 0       # phytoplankton import of group 3 (w.w. mg L^-1)
              )
 )
+forcH <- with(bautzen1997,
+              data.frame(
+                time   = t,          # simulation time (in days)
+                vol    = vh,          # volume (m^3)
+                depth  = s - 154,    # actual depth of the lake (m)
+                dz     = zhm,          # zmix, or layer depth (m)
+                qin    = qhin,        # water inflom (m^3 d^-1)
+                ased   = 0,          # sediment contact area of the layer (m^2 ??)
+                srf    = srf,        # strong rain factor, an empirical index of turbidity
+                iin    = 0,        # photosynthetic active radiation (J cm^2 d^-1); approx 50% of global irradiation
+                temp   = temph,       # water temperature (deg. C)
+                nin    = nhin,        # DIN concentration in inflow (mg L^-1)
+                pin    = phin,        # DIP concentratioin in inflow (mug L^-1)
+                pomin  = pomhin,      # particulate organic matter in inflow, wet weight (mg L^-1)
+                zin    = zhin,        # zooplankton in inflow (w.w. mg L^-1)
+                oin    = ohin,  # oxygen concentration in inflow (mg L^-1)
+                aver   = 1,          # ratio of sediment contact area to total area
+                ad     = 0,          # downwards flux between layers (m^3 d^-1)
+                au     = 0,          # upwards flux between layers (m^3 d^-1)
+                diff   = 0,          # eddy diffusion coefficient
+                x1in   = xhin1,       # phytoplankton import of group 1 (w.w. mg L^-1)
+                x2in   = xhin2,       # phytoplankton import of group 2 (w.w. mg L^-1)
+                x3in   = 0       # phytoplankton import of group 3 (w.w. mg L^-1)
+              )
+)
+
+  
+
 ## Matrices are faster than data frames
-forc <- as.matrix(forc)
+forc <- as.matrix(cbind(forcE, forcH))
+
+
 
 ## Read default parameter set. The order of the vector must not be changed!
 data(pp)  # Phytoplankton parameters of SALMO, matrix with 1 column per phytopl. species
@@ -86,6 +120,9 @@ parms <- list(pp=pp, cc=cc, nOfVar=nOfVar)
 ##      (currently not used)
 x0 <- c(N=5, P=10, X1=.1, X2=.1,  X3=.1, Z=.1, D=20, O=14, G1=0, G2=0, G3=0)
 
+## 2 boxes -----------------
+
+x0 <- rep(x0, 2)
 
 ## Call one time for testing
 ret <- call_salmodll("SalmoCore", nOfVar, cc, pp, forc, x0)
@@ -95,10 +132,10 @@ times <- seq(0, 365, 1)
 
 ## Model simulation with "lsoda" from package deSolve
 #system.time(
-  out <- ode(x0, times, SALMO.1box, parms = parms, method="lsoda", inputs=forc)
+  out <- ode(x0, times, SALMO.2box, parms = parms, method="lsoda", inputs=forc)
 #)
 
-plot(out, which=c("N", "P", "X1", "X2", "X3", "Z", "D", "O", "iin"))
+plot(out, which=c("X1", "N", "P", "O", "iin"), mfrow=c(4,3))
 
 
 ## Todo:

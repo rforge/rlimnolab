@@ -10,8 +10,8 @@
 #' @param uu     input vector (environmental conditions)
 #' @param xx     state vector
 #'
-#' @return list, contains past state and derivatives separated into
-#'               source and sink term
+#' @return list, contains (1) past state and derivatives separated into
+#'               (2) source and (3) sink term and (4) modified inputs
 
 call_salmodll <- function(cfunc, nOfVar, cc, pp, uu, xx) {
 
@@ -21,5 +21,5 @@ call_salmodll <- function(cfunc, nOfVar, cc, pp, uu, xx) {
   ret  <- .C(cfunc, as.integer(nOfVar), cc = as.double(cc),
              pp = as.double(pp), uu = as.double(uu), xx = as.double(xx),
              dxq = as.double(dxq), dxs = as.double(dxs))
-  list(ret$xx, ret$dxq, ret$dxs)
+  list(ret$xx, ret$dxq, ret$dxs, ret$uu)
 }
