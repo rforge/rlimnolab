@@ -7,7 +7,9 @@ library(rSALMO)
 
 ### ================ work in progress ======================
 ### ToDo:
-###    create new function SALMO.2box
+###    - add functions or data set to handle hypsographic function
+###    - create 2 cbind() forcing matrices for epi- and hypolimnion
+###    - implement details of function SALMO.2box
 ### ========================================================
 
 
