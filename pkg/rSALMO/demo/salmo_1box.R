@@ -42,7 +42,7 @@ data(pp)  # phytoplankton parameters, matrix with 1 column per phytopl. species
 
 forc <- with(bautzen1997, 
   data.frame(
-    time   = t,
+    time   = t,          # simulation time (in days)
     vol    = v,          # volume (m^3)
     depth  = s - 154,    # actual depth of the lake (m)
     dz     = 5,          # zmix, or layer depth (m)
@@ -56,7 +56,7 @@ forc <- with(bautzen1997,
     pomin  = pomin,      # particulate organic matter in inflow, wet weight (mg L^-1)
     zin    = zin,        # zooplankton in inflow (w.w. mg L^-1)
     oin    = o2sat(temp),  # oxygen concentration in inflow (mg L^-1)
-    aver   = 0,          # sediment contact area ratio
+    aver   = 0,          # ratio of sediment contact area to total area
     ad     = 0,          # downwards flux between layers (m^3 d^-1)  
     au     = 0,          # upwards flux between layers (m^3 d^-1)
     diff   = 0,          # eddy diffusion coefficient 
@@ -86,10 +86,13 @@ nOfVar["numberOfParameters"] <- length(pp) / nOfVar["numberOfAlgae"] ## importan
 
 cc["EPSMIN"] <- 0.7
 
+## a few parameters that are specific for Bautzen Reservoir
 cc[c("MOMIN",	"MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
    c(0.005,   0.002,	    0,	 0.095,	   0,	         365,	     0.00,	 1.03)
 
-#       N  P   X1   X2  X3 Z    D   O
+## Initial values
+## X = Phytoplankton biomass, Z = Zooplankton Biomass
+## 
 x0 <- c(N=5, P=10, X1=.1, X2=.1,  X3=.1, Z=.1, D=20, O=14, G1=0, G2=0, G3=0)
 
 
