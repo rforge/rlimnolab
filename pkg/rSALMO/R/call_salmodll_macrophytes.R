@@ -1,9 +1,9 @@
 #' Call SALMO Shared Library
-#' 
-#' This function calls the shared library of SALMO 
-#' (version with macrophyte coupling).
-#' 
-#' 
+#'
+#' Call the shared library of SALMO
+#' (with additional states and parameters for macrophyte coupling)
+#'
+#'
 #' @param cfunc  string, name of the C function to be called
 #' @param nOfVar vector with number of variables
 #' @param cc     vector of constants for the model
@@ -12,9 +12,9 @@
 #' @param xx     state vector
 #' @param pm     parameters for macrophytes
 #' @param mx     states of macrophytes (ReacTran format)
-#' 
+#'
 #' @return list, containing the derivatives as first element
-salmodll <-
+call_salmodll_macrophytes <-
 function(
   cfunc,         # name of the C function to be called
   nOfVar,        # number of variables
@@ -30,8 +30,6 @@ function(
   ## sort order of states for use with SALMO
   xx  <- sortSalmo(xx, nOfVar["numberOfStates"], nOfVar["numberOfLayers"])
   ## call C function
-  ## thpe -> rene: variablen brauchen nur dann einen namen, wenn man sie 
-  ##               wieder zurueckgeben will. 
   ret <- .C(
     cfunc,
     as.integer(nOfVar),
@@ -44,10 +42,10 @@ function(
     mx = as.double(mx),
     aFunVegRes = as.double(numeric(nOfVar["numberOfLayers"]))
   )
-  ## sort derivatives for use with ReacTran, 
-  ## Attention: inputs uu and states xx are still in SALMO format 
+  ## sort derivatives for use with ReacTran,
+  ## Attention: inputs uu and states xx are still in SALMO format
   ##            for use with macrophyte module
-  list(arrangeStateWise(ret$dxx, nOfVar["numberOfStates"], 
+  list(arrangeStateWise(ret$dxx, nOfVar["numberOfStates"],
     nOfVar["numberOfLayers"]), ret$uu, ret$xx, ret$aFunVegRes)
   ## SALMO format of derivatives
   #  list(ret$dxx, ret$uu, ret$xx)

@@ -2,7 +2,6 @@
 
 createSalmoForcings <- function() {
 
-
   forcings <- data.frame(
     time   = 0:365,
     vol    = vol,
@@ -25,7 +24,6 @@ createSalmoForcings <- function() {
     x1in   = X1in,
     x2in   = X2in,
     x3in   = X3in,
-    sf     = 1
   )
   forcings
 }
