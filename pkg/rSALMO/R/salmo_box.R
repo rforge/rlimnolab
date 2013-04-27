@@ -31,23 +31,23 @@ SALMO.1box <- function(time, x, p, inputs) {
 
 
 SALMO.2box <- function(time, x, p, inputs) {
-  #cat(time, "\n")
+  cat(time, "\n")
   noi <- nOfVar["numberOfInputs"]
   nos <- nOfVar["numberOfStates"]
   
   
   ## constants; should be made flexible
-  undt <- 1  # retuns eps modified by phytoplankton; can be used by physics
-  uvol <- 2  # volume of the layer
-  uiin <- 8  # returns light at bottom of box  
+  undt <- 1  # index of eps, modified by phytoplankton; can be used by physics
+  uvol <- 2  # index of volume of the layer
+  uiin <- 8  # index of light at bottom of box  
   
   ## interpolate data (this is the slowest part of the simulation)
   uu <- approxTime1(inputs, time)
 
   uuE <- uu[1:noi]            # epilimnion  
   uuH <- uu[(noi+1):(2*noi)]  # hypolimnion
-  
-  ## call the C model core for the upper layer (epilinion)
+   
+  ## call the C model core for the upper layer (epilimnion)
   retE <- call_salmodll("SalmoCore", p$nOfVar, p$cc, p$pp, uuE, x[1:nos])
 
   ## modify uu so that it describes the bottom layer (hypolimnion)
@@ -60,8 +60,12 @@ SALMO.2box <- function(time, x, p, inputs) {
   if (uuH[uvol] > 1e-14) {
     retH <- call_salmodll("SalmoCore", p$nOfVar, p$cc, p$pp, uuH, x[(nos+1):(2*nos)])
   } else {
-    retH <- retE  # fully mixed conditions
+    retH <- retE  # fully mixed conditions 
+    # !!! this works only at beginning of the simulation !!!
+    #     because states have also to be reset resp. balanced 
   }
+  
+  ## ========= Transport ===========
   ## apply partial mixing of the layers
   # ... to be implemented
   

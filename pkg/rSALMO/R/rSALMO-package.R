@@ -1,15 +1,16 @@
 #' Ecological Simulation of Lakes
 #'
 #' \tabular{ll}{
-#' Package: \tab rSALMO\cr
-#' Type: \tab Package\cr
-#' Version: \tab 0.1\cr
-#' Date: \tab 2012-04-27\cr
-#' License: \tab  GPL (>= 2)\cr
+#' Package:  \tab rSALMO\cr
+#' Type:     \tab Package\cr
+#' Version:  \tab 0.1\cr
+#' Date:     \tab 2013-04-27\cr
+#' License:  \tab  GPL (>= 2)\cr
 #' LazyLoad: \tab yes\cr
 #' }
 #'
-#' Add a short description of the package .....
+#' An R implementation of the SALMO lake model\cr 
+#' (SALMO: Simulation by means of An analytical Lake MOdel)
 #'
 #'
 #' @name rSALMO-package
@@ -28,4 +29,10 @@
 #' @keywords package
 #' @seealso \code{\link[deSolve:deSolve-package]{deSolve}}
 #' @examples
-#' ## add a few examples
+#' 
+#' demo("salmo_1box")
+#' demo("salmo_2box")
+#'    
+#' 
+{}
+

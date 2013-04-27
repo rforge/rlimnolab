@@ -6,6 +6,7 @@
 library(rSALMO)
 
 ### ================ work in progress ======================
+### Warning: transport, sedimentation and sediment not yet implemented
 ### ToDo:
 ###    - add functions or data set to handle hypsographic function
 ###    - create 2 cbind() forcing matrices for epi- and hypolimnion
@@ -20,15 +21,50 @@ library(rSALMO)
 ## Data set from workgroup limnology of TU Dresden
 data(bautzen1997)
 
+## Hypsographic table of Bautzen reservoir
+data(bautzen_hypso)
+
+hyps <- hypso_functions(bautzen_hypso)
+
+#bautzen1997$s
+
+## sediment area of hypo- and epilimnion
+
+## upper boundaries of hypo- and epilimnion
+levels <- with(bautzen1997, cbind(hypo = s-zmixreal, epi = s))
+
+## calculate sediment area row-wise for pairs of hypo and epilimnion depths
+## "1" means row wise, t() means that result needs to be transposed
+## result: 1st colum: hypolimnic sediment area, 2nd: epilimnic sediment area
+# ToDo: make this a function
+sediment_area <- t(apply(levels, 1, hyps$sediment_area))
+
+## same for pelagic ratio
+pelagic_ratio <- t(apply(levels, 1, hyps$pelagic_ratio))
+
+## check pelagic_ratio calculation
+# areaE <- hyps$area(levels[,2])
+# areaH <- hyps$area(levels[,1])
+# 
+# sedH <- areaH
+# sedE <- areaE - sedH
+# 
+# ratioH <- 1 - sedH/areaH
+# ratioE <- 1 - sedE/areaE
+
+
 ## Reformat old-style input data structure into new structure
 forcE <- with(bautzen1997,
              data.frame(
                time   = t,          # simulation time (in days)
                vol    = ve,          # volume (m^3)
-               depth  = s - 154,    # absolute depth of the layer (m), required for resuspension depth
+               depth  = zmixreal,    # absolute depth of the layer (m), required for resuspension depth
                dz     = zmix,          # zmix, or layer thickness (m)
-               qin    = qin,        # water inflo (m^3 d^-1)
-               ased   = 0,          # sediment contact area of the layer (m^2); important
+               qin    = qin,        # water inflow (m^3 d^-1)
+  ## !!! ToDo !!! Salmo crashes because sediment_area is so high
+  ## I have currenly no idea what happens here.             
+  ## It will need careful debugging on the C level             
+               ased   = 0,#sediment_area[,2],          # sediment contact area of the layer (m^2); important
                srf    = srf,        # strong rain factor, an empirical index of turbidity
                iin    = iin,        # photosynthetic active radiation (J cm^2 d^-1); approx 50% of global irradiation
                temp   = temp,       # water temperature (deg. C)
@@ -37,9 +73,9 @@ forcE <- with(bautzen1997,
                pomin  = pomin,      # particulate organic matter in inflow, wet weight (mg L^-1)
                zin    = zin,        # zooplankton in inflow (w.w. mg L^-1)
                oin    = oin,  # oxygen concentration in inflow (mg L^-1)
-               aver   = 1,          # ratio of sediment contact area to total area; (redundant if SF=0)
-               ad     = 0,          # downwards flux between layers (m^3 d^-1)
-               au     = 0,          # upwards flux between layers (m^3 d^-1)
+               aver   = pelagic_ratio[,2],      # 1 - (ratio of sediment contact area to total area); (redundant if SF=0)
+               ad     = 0,#ah,          # downwards flux between layers (m^3 d^-1)
+               au     = 0,#ae,          # upwards flux between layers (m^3 d^-1)
                diff   = 0,          # eddy diffusion coefficient
                x1in   = xin1,       # phytoplankton import of group 1 (w.w. mg L^-1)
                x2in   = xin2,       # phytoplankton import of group 2 (w.w. mg L^-1)
@@ -53,7 +89,7 @@ forcH <- with(bautzen1997,
                 depth  = s - 154,
                 dz     = zhm,
                 qin    = qhin,
-                ased   = 0,
+                ased   = sediment_area[,1]/1e6,
                 srf    = srf,
                 iin    = 0,
                 temp   = temph,
@@ -62,9 +98,9 @@ forcH <- with(bautzen1997,
                 pomin  = pomhin,
                 zin    = zhin,
                 oin    = ohin,
-                aver   = 1,
-                ad     = 0,
-                au     = 0,
+                aver   = 0,            # is zero in hypolimnion
+                ad     = 0,#ah,
+                au     = 0,#ae,
                 diff   = 0,
                 x1in   = xhin1,
                 x2in   = xhin2,
@@ -87,6 +123,11 @@ data(cc)  # other SALMO parameters, vector
 cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
    c(0.005,   0.002,	    0,	 0.095,	   0,	         365,	     0.00,	 1.03)
 
+## TEST TEST TEST
+#cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",  "NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
+#   c(0.005,   0.002,	    0,	 0,	   0,	         0,	     0.00,	 1.03)
+
+
 ## Background light extinction is lake specific
 cc["EPSMIN"] <- 0.7
 
@@ -103,7 +144,7 @@ nOfVar <- c(
   numberOfLayers      = 1,
   numberOfTributaries = 4,
   numberOfOutlets     = 3,
-  timestep = 1
+  timestep            = 1  # dummy
 )
 
 ## Total number of parameters passed to the model (very important)
@@ -132,6 +173,8 @@ ret <- call_salmodll("SalmoCore", nOfVar, cc, pp, forc, x0)
 
 ## Simulation time steps
 times <- seq(0, 365, 1)
+
+#times <- seq(0, 200, 1)
 
 ## Model simulation with "lsoda" from package deSolve
 #system.time(

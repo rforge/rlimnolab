@@ -5,6 +5,8 @@
 ### See 2 box version for a more realistic case.
 ### ============================================================================
 
+### Warning: transport, sedimentation and sediment not yet implemented
+
 library(rSALMO)
 
 ## Data set from workgroup limnology of TU Dresden
