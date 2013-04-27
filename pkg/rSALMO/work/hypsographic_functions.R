@@ -1,34 +1,41 @@
 data(bautzen_hypso)
 
-hypso <- list() # aggregate hypsographic functions for a lake in one list
 
-hypso$area   <- with(bautzen_hypso, approxfun(level, area))
-hypso$volume <- with(bautzen_hypso, approxfun(level, volume))
-hypso$level  <- with(bautzen_hypso, approxfun(volume, level))
-
-hypso$vh <- function(level, zmixreal) {
-  hypso$volume(level - zmixreal)
+set_hypso_functions <- function(table) {
+  level  <- with(table, approxfun(volume, level))
+  area   <- with(table, approxfun(level, area))
+  volume <- with(table, approxfun(level, volume))
+  
+  vh <- function(level, zmixreal) {
+    volume(level - zmixreal)
+  }
+  
+  ve <- function(level, zmixreal) {
+    vh <- vh(level, zmixreal)
+    v  <- volume(level)
+    v - vh
+  }
+  
+  zmix <- function(level, zmixreal) {
+    v <- volume(level)
+    vh <- vh(level, zmixreal)
+    a  <- area(level)
+    (v - vh) / a
+  }
+  
+  zhm <- function(level, zmixreal, ah.min = 0.1) {
+    vh  <- vh(level, zmixreal)
+    ah  <- area(level)
+    if (ah > ah.min)
+      zhm <- vh /ah
+    else
+      zhm <- 0
+    zhm
+  }
+  
+  list(level = level, area = area, volume = volume,
+       ve = ve, vh = vh, zmix = zmix, zhm = zhm)
 }
 
-hypso$ve <- function(level, zmixreal) {
-  vh <- hypso$vh(level, zmixreal)
-  v  <- hypso$volume(level)
-  v - vh
-}
+hypso <- set_hypso_functions(bautzen_hypso)
 
-hypso$zmix <- function(level, zmixreal) {
-  v <- hypso$volume(level)
-  vh <- hypso$vh(level, zmixreal)
-  a  <- hypso$area(level)
-  (v - vh) / a
-}
-
-hypso$zhm <- function(level, zmixreal, ah.min = 0.1) {
-  vh  <- hypso$vh(level, zmixreal)
-  ah  <- hypso$area(level)
-  if (ah > ah.min)
-    zhm <- vh /ah
-  else
-    zhm <- 0
-  zhm
-}
