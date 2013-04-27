@@ -25,10 +25,10 @@ forcE <- with(bautzen1997,
              data.frame(
                time   = t,          # simulation time (in days)
                vol    = ve,          # volume (m^3)
-               depth  = s - 154,    # actual depth of the lake (m)
-               dz     = zmix,          # zmix, or layer depth (m)
-               qin    = qin,        # water inflom (m^3 d^-1)
-               ased   = 0,          # sediment contact area of the layer (m^2 ??)
+               depth  = s - 154,    # absolute depth of the layer (m), required for resuspension depth
+               dz     = zmix,          # zmix, or layer thickness (m)
+               qin    = qin,        # water inflo (m^3 d^-1)
+               ased   = 0,          # sediment contact area of the layer (m^2); important
                srf    = srf,        # strong rain factor, an empirical index of turbidity
                iin    = iin,        # photosynthetic active radiation (J cm^2 d^-1); approx 50% of global irradiation
                temp   = temp,       # water temperature (deg. C)
@@ -37,7 +37,7 @@ forcE <- with(bautzen1997,
                pomin  = pomin,      # particulate organic matter in inflow, wet weight (mg L^-1)
                zin    = zin,        # zooplankton in inflow (w.w. mg L^-1)
                oin    = oin,  # oxygen concentration in inflow (mg L^-1)
-               aver   = 1,          # ratio of sediment contact area to total area
+               aver   = 1,          # ratio of sediment contact area to total area; (redundant if SF=0)
                ad     = 0,          # downwards flux between layers (m^3 d^-1)
                au     = 0,          # upwards flux between layers (m^3 d^-1)
                diff   = 0,          # eddy diffusion coefficient
@@ -48,27 +48,27 @@ forcE <- with(bautzen1997,
 )
 forcH <- with(bautzen1997,
               data.frame(
-                time   = t,          # simulation time (in days)
-                vol    = vh,          # volume (m^3)
-                depth  = s - 154,    # actual depth of the lake (m)
-                dz     = zhm,          # zmix, or layer depth (m)
-                qin    = qhin,        # water inflom (m^3 d^-1)
-                ased   = 0,          # sediment contact area of the layer (m^2 ??)
-                srf    = srf,        # strong rain factor, an empirical index of turbidity
-                iin    = 0,        # photosynthetic active radiation (J cm^2 d^-1); approx 50% of global irradiation
-                temp   = temph,       # water temperature (deg. C)
-                nin    = nhin,        # DIN concentration in inflow (mg L^-1)
-                pin    = phin,        # DIP concentratioin in inflow (mug L^-1)
-                pomin  = pomhin,      # particulate organic matter in inflow, wet weight (mg L^-1)
-                zin    = zhin,        # zooplankton in inflow (w.w. mg L^-1)
-                oin    = ohin,  # oxygen concentration in inflow (mg L^-1)
-                aver   = 1,          # ratio of sediment contact area to total area
-                ad     = 0,          # downwards flux between layers (m^3 d^-1)
-                au     = 0,          # upwards flux between layers (m^3 d^-1)
-                diff   = 0,          # eddy diffusion coefficient
-                x1in   = xhin1,       # phytoplankton import of group 1 (w.w. mg L^-1)
-                x2in   = xhin2,       # phytoplankton import of group 2 (w.w. mg L^-1)
-                x3in   = 0       # phytoplankton import of group 3 (w.w. mg L^-1)
+                time   = t,
+                vol    = vh,
+                depth  = s - 154,
+                dz     = zhm,
+                qin    = qhin,
+                ased   = 0,
+                srf    = srf,
+                iin    = 0,
+                temp   = temph,
+                nin    = nhin,
+                pin    = phin,
+                pomin  = pomhin,
+                zin    = zhin,
+                oin    = ohin,
+                aver   = 1,
+                ad     = 0,
+                au     = 0,
+                diff   = 0,
+                x1in   = xhin1,
+                x2in   = xhin2,
+                x3in   = 0
               )
 )
 
@@ -89,6 +89,9 @@ cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KNDST")]
 
 ## Background light extinction is lake specific
 cc["EPSMIN"] <- 0.7
+
+## Check that internal sedimentation is switched off
+cc["SF"] == 0
 
 ## Set of technical parameters, a.o. for dimensioning dynamic variables
 nOfVar <- c(

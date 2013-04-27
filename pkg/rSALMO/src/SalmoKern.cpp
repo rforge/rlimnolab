@@ -19,8 +19,8 @@
 //#define use_R true
 
 #ifdef use_R
-#include <R.h>                    /* R compatibility */
-#include <Rinternals.h>           /* R compatibility */
+#include <R.h>                    /* for R compatibility */
+#include <Rinternals.h>           /* for R compatibility */
 #endif
 
 #ifndef math_h
@@ -63,8 +63,8 @@ double saturation(double T) {
 
 
 void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* dxq, double* dxs) {
- int np = nOfVar[inumberOfParameters];               // important for accessing "p"
- int nx = nOfVar[inumberOfPhyto];                    // number of phytoplankton groups: 3
+ int np = nOfVar[inumberOfParameters];    // important for accessing "p"
+ int nx = nOfVar[inumberOfPhyto];         // number of phytoplankton groups: 3
  
  /* derivatives of the state variables, splitted in source and sink terms     */
  double dNq = 0.0;
