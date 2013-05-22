@@ -1,10 +1,11 @@
 Package: rSALMO
 Type: Package
 Title: Simulation of ecological lake models
-Version: 0.1
-Date: 2013-04-18
+Version: 0.2
+Date: 2013-05-22
 Depends: deSolve, roxygen2
 Author: Thomas Petzoldt, Susanne Rolinski and Rene Sachse
 Maintainer: Thomas Petzoldt <thomas.petzoldt@tu-dresden.de>
 Description: Simulation of ecological lake models ... (description needs to be completed)
 License: GPL (>= 2) 
+URL: http://rlimnolab.r-forge.r-project.org/
