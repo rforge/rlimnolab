@@ -1,39 +1,6 @@
 library(marelac)
 library(rSALMO)
 
-call_SalmoDLL <- function(cfunc,         # C function to be called
-                          nOfVar,        # numbers of variables
-                          cc,            # vector of parameters
-                          pp,            # matrix of phytoplankton parameters
-                          uu,            # vector of forcing functions
-                          xx) {          # vector of initial states
-
-  dxq <- dxs <- numeric(length(xx))
-  ret  <- .C(cfunc, as.integer(nOfVar), cc=as.double(cc),
-             pp=as.double(pp), uu=as.double(uu), xx=as.double(xx), 
-             dxq=as.double(dxq), dxs=as.double(dxs))
-  list(ret$xx, ret$dxq, ret$dxs)
-}
-
-
-SALMO.1box <- function(time, x, p, inputs) {
-  #cat(time, "\n")
-
-  ## interpolate data (this is the slowest part of the simulation)
-  uu <- approxTime1(inputs, time)
-  
-  ## call the C model core 
-  ret <- call_SalmoDLL("SalmoCore", nOfVar, cc, pp, uu, x)
-  
-  ## return source - sink terms
-  dx <-c(ret[[2]] - ret[[3]])
-  
-  ## fix oxygen balance at surface to saturated value
-  dx[8] <-  o2sat(uu["temp"]) - x[8]
-  #list(dx, dO = unname(dx[8]))
-  list(dx, iin = unname(uu["iin"]))
-}
-
 data(bautzen1997)
 
 data(cc)  # unique SALMO parameters, vector
