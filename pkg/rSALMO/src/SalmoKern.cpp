@@ -368,7 +368,7 @@ void SalmoKern(int* nOfVar, double* c, double* p, double* u, double* x, double* 
  } else {
     double alpha, phox0, phoxlj, dGj;
     for (zj = 1; zj <= M; zj++) {                                     /* 9.2  */
-      zvonj = (zj - 1) / M * zmix;                                    /* 7.5  */
+      zvonj = zmix * (zj - 1) / (double) M;                           /* 7.5  */
 
       /* Light in the mixed layer */
       iredz = ired * exp(-eps * zvonj);                               /* 7.0  */
