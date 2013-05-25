@@ -12,6 +12,13 @@
 #'               other elements can contain optional outputs
 
 SALMO.1box <- function(time, x, p, inputs) {
+  # save a few frequently used criteria to temporary variables
+  #xnames <- names(x)
+  #O2 <-  which(xnames == "O")
+  
+  # the same "hard coded" for testing performance
+  O2 <- 8
+  
   #cat(time, "\n")
 
   ## interpolate data (this is the slowest part of the simulation)
@@ -24,8 +31,9 @@ SALMO.1box <- function(time, x, p, inputs) {
   dx <-c(ret[[2]] - ret[[3]])
 
   ## fix oxygen balance at surface to saturated value
-  dx[8] <-  o2sat(uu["temp"]) - x[8]
-  #list(dx, dO = unname(dx[8]))
+  
+  dx[O2] <-  o2sat(uu["temp"]) - x[O2]
+  
   list(dx, iin = unname(uu["iin"]))
 }
 
