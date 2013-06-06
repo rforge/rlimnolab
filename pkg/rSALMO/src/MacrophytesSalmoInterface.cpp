@@ -16,7 +16,7 @@
 //******************************************************************************
 //  Include Macrophyte Kernel
 //******************************************************************************            
-
+//#define use_R
 #include "MacrophytesCore.h"
 
 
@@ -39,6 +39,7 @@ void MacrophyteAllLayers (
 ) {
   int nOL = nOfVar[inumberOfLayers];
   for(int layer =  0; layer < nOL; layer++) {
+    //Rprintf("layer %d\n", layer);
     MacrophyteCore(
       mnOfVar,
       nOfVar,
