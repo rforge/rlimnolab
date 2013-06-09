@@ -11,7 +11,7 @@
 #' @return list, first element contains the derivatives,
 #'               other elements can contain optional outputs
 
-SALMO.1box <- function(time, x, p, inputs) {
+salmo_1box <- function(time, x, p, inputs) {
   # save a few frequently used criteria to temporary variables
   #xnames <- names(x)
   #O2 <-  which(xnames == "O")
@@ -38,7 +38,7 @@ SALMO.1box <- function(time, x, p, inputs) {
 }
 
 
-SALMO.2box <- function(time, x, p, inputs) {
+salmo_2box <- function(time, x, p, inputs) {
   cat(time, "\n")
   noi <- nOfVar["numberOfInputs"]
   nos <- nOfVar["numberOfStates"]

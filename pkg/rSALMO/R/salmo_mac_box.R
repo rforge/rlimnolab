@@ -1,5 +1,5 @@
-SALMO_MAC.1box <- function(time, states, parms, inputs) {
-  
+salmo_mac_1box <- function(time, states, parms, inputs) {
+
   cat("time=", time, "\n")
   #print(states)
   if(any(states < 0)) {
@@ -7,31 +7,31 @@ SALMO_MAC.1box <- function(time, states, parms, inputs) {
     print(paste(time, " warning a state went negative and was set to 1e-7 ", id))
   }
   states <- ifelse(states < 0, 1e-7, states)
-  
+
   with(parms, {
     # todo: make numbers flexible
     nstates <- 11
     nlayers <- 1
-    
+
     y.salmo <- states[1:11]   # plankton submodel
     y.macro <- states[12:15]  # macrophyte submodel
-    
+
     forc <- approxTime1(inputs$forcings, time)
     ## only required for systems > 0D
     #attr(forc, "colnames") <- attr(inputs$forcings, "colnames") # thpe: tricky :-(
-    
+
     ## thpe: hard-coded indices "9" should be avoided. Use indirect variables
     #itemp <- which(attr(forcings, "colnames") == "temp")
-    
-    #temp       <- forc[itemp + (0:(nlayers - 1) * ni)] #layer temperature 
+
+    #temp       <- forc[itemp + (0:(nlayers - 1) * ni)] #layer temperature
     #zmixret    <- calczmix(temp, depths)
     #cc["Zres"] <- zmixret$zres          # set resuspension depth to mixing depth
-    
-    ## call SALMO core for every layer and returns derivatives for all layers  
+
+    ## call SALMO core for every layer and returns derivatives for all layers
     dy.salmo <- numeric(length(y.salmo))
-    
+
     ## reorder states for use with SALMO
-    y.tmp  <- arrangeLayerWise(y.salmo, nOfVar["numberOfStates"], 
+    y.tmp  <- arrangeLayerWise(y.salmo, nOfVar["numberOfStates"],
                                nOfVar["numberOfLayers"])
     salmo <- .C(
       "MReaktion",
@@ -48,17 +48,17 @@ SALMO_MAC.1box <- function(time, states, parms, inputs) {
 
     #aFunVegSed <- 1/c(1, salmo$aFunVegRes)
     aFunVegSed <- 1/salmo$aFunVegRes
-    
+
     # thpe: returned from from salmodll:
     dreaction <- arrangeStateWise(salmo$dy.salmo, nstates, nlayers)
-    
+
     ## call macrophyte model
     #salmodmx <- numeric(length(y.salmo)) # thpe: redundant
     #salmodmx <- numeric(length(salmo$xx))
     dy.macro <- numeric(length(y.macro))
 
     ## call C function
-        
+
     macro <- .C(
       "MacrophyteReaction",
       as.double(nOfVar_ma),
@@ -72,18 +72,18 @@ SALMO_MAC.1box <- function(time, states, parms, inputs) {
       as.double(y.macro),
       dy.macro = as.double(dy.macro)
     )
-    
+
     dmacro <- arrangeStateWise(macro$dy.salmo, nstates, nlayers)
-    
+
     #vmat       <- inputs$vmat     * aFunVegSed
     #vmatsedi   <- inputs$vmatsedi * aFunVegSed
-    
+
     # thpe: transport for a single box
     # .... does not need ReacTran
     dtransport <- - vmatsedi[1,] * y.salmo / forc["dz"]
-    
+
     ## this function would require matrices
-    #dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres, 
+    #dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres,
     #  vmat, vmatsedi, time)
 
     ## state equation
@@ -91,12 +91,12 @@ SALMO_MAC.1box <- function(time, states, parms, inputs) {
 
     ## oxygen ==========
     #ynames <- names(y.salmo)
-    #O2 <-  which(ynames == "O")
+    #iO2 <-  which(ynames == "O")
 
     # the same "hard coded" for testing performance
-    O2 <- 8
+    iO2 <- 8
 
-    dy.salmo[O2] <-  o2sat(forc["temp"]) - y.salmo[O2]
+    dy.salmo[iO2] <-  o2sat(forc["temp"]) - y.salmo[iO2]
 
     list(c(dy.salmo, macro$dy.macro))
   }) # end with

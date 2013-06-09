@@ -178,7 +178,7 @@ times <- seq(0, 365, 1)
 
 ## Model simulation with "lsoda" from package deSolve
 #system.time(
-  out <- ode(x0, times, SALMO.2box, parms = parms, method="lsoda", inputs=forc)
+  out <- ode(x0, times, salmo_2box, parms = parms, method="lsoda", inputs=forc)
 #)
 
 plot(out, which=c("X1", "N", "P", "O", "iin"), mfrow=c(4,3))

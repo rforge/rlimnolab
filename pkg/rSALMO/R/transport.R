@@ -6,6 +6,12 @@ transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
   iaver <- which(attr(forcings, "colnames") == "aver")
   ivol  <- which(attr(forcings, "colnames") == "vol")
   idz   <- which(attr(forcings, "colnames") == "dz")
+  
+  iO2 <- 8
+  
+  Area3 <- forc[, "vol"] / forc[, "dz"]
+  
+  ni <- parms$nOfVar["numberOfInputs"]
 
   with(parms, {
 
@@ -38,7 +44,7 @@ transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
       tx <- x[id] # the i-th state variable for all layers
       ## flux of oxygen from atmosphere into first layer
       ## !!!           .................  !!! make this flexible
-      fluxup <- ifelse(i == 2 + nphy + 3, K2 * (o2sat(forcings[itemp]) - tx[1]) / dz[1], 0)
+      fluxup <- ifelse(i == iO2, K2 * (o2sat(forcings[itemp]) - tx[1]) / dz[1], 0)
       ## increase vsink for cyanos in autumn
       #if (time > 315) {
         #vmat[,3]     <- vmat[,3] * 5
@@ -48,7 +54,7 @@ transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
         #vmatsedi <- vmatsedi * 2
       #}
       ## transport of the i-th state variable
-      dxx[id] <- tran.1D(tx, C.up = 0, C.down = 0, D = D, v = vmat[,i],
+            dxx[id] <- tran.1D(tx, C.up = 0, C.down = 0, D = D, v = vmat[,i],
                          flux.up = fluxup, A = Area3, dx = dz)$dC
       #if (i == 6) D <- Dori
     }

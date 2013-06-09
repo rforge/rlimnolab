@@ -93,14 +93,9 @@ times <- seq(0, 365, 1)
 
 ## Model simulation with "lsoda" from package deSolve
 #system.time(
-  out <- ode(x0, times, SALMO.1box, parms = parms, method="lsoda", inputs=forc)
+  out <- ode(x0, times, salmo_1box, parms = parms, method="lsoda", inputs=forc)
 #)
 
 plot(out, which=c("N", "P", "X1", "X2", "X3", "Z", "D", "O", "iin"))
-
-
-## Todo: 
-#  - aver, SF
-#  - ICE
 
 
