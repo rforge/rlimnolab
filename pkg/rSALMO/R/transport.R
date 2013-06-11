@@ -9,16 +9,12 @@ transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
   idz   <- which(cnames == "dz")
   
   iO2 <- 8
-
   ni <- parms$nOfVar["numberOfInputs"]
-  
-  ## correct dimensions; reformat matrices??
-  #Area3 <- forcings[, "vol"] / forcings[, "dz"]
   
   ## calculate area from volume and depth
   mforc <- matrix(forcings, nrow = ni)
-  Area3 <- mforc[ivol, ] / mforc[idz,]
-  Area3 <- c(Area3, Area3[length(Area3)])
+  Area <- mforc[ivol, ] / mforc[idz,]
+  Area <- c(Area, Area[length(Area)])
 
   with(parms, {
 
@@ -62,7 +58,7 @@ transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
       #}
       ## transport of the i-th state variable
             dxx[id] <- tran.1D(tx, C.up = 0, C.down = 0, D = D, v = vmat[,i],
-                         flux.up = fluxup, A = Area3, dx = dz)$dC
+                         flux.up = fluxup, A = Area, dx = dz)$dC
       #if (i == 6) D <- Dori
     }
 

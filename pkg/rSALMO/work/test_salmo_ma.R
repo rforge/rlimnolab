@@ -19,8 +19,6 @@ pp_ma[42,1]  <- 0    # [d^-1] MortWaveMax = 0  -> no wave mortality
 ## simulation settings
 data(nOfVar)
 data(nOfVar_ma)
-data(Area3)
-
 
 pp[2,] <-  c(0.03, 0.02, 0.02) * 5 # specific extinction coefficients (from AEMON database, converted from mg Chl m^-3 to g WW m^-3 by factor of 5)
 pp[20,] <- c(0.1, 0.4, 0.4)        # [m/d] settling velocity for phyto-plankton (from Rinke et. al. 2010)
@@ -136,7 +134,6 @@ parms <- list(
   Depi = 50,
   Dhypo = 1,
   K2 = 1,
-  Area3 = Area3,
   cc = cc, pp = pp, 
   cc_ma = cc_ma, pp_ma = pp_ma,
   nOfVar = nOfVar, nOfVar_ma = nOfVar_ma,
@@ -155,7 +152,7 @@ inputs <- list(
 
 nspec <- nOfVar["numberOfStates"] + nOfVar_ma["numberOfStates"]  
 
-rm(cc, pp, cc_ma, pp_ma, nOfVar, nOfVar_ma, nstates, nlayers, Area3)
+rm(cc, pp, cc_ma, pp_ma, nOfVar, nOfVar_ma, nstates, nlayers)
 
 # unew is a global variable used in "getuvec"
 # !!! nlayers, nOfVar are global variables used in "transport"
