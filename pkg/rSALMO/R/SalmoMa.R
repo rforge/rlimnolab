@@ -1,4 +1,5 @@
 SalmoMa <- function(time, states, parms, inputs) {
+  cat("time = ", time, "\n")
   
   if(any(states < 0)) {
     id <- which(states < 0)
@@ -12,6 +13,8 @@ SalmoMa <- function(time, states, parms, inputs) {
     
     forc <- approxTime1(inputs$forcings, time)
     attr(forc, "colnames") <- attr(inputs$forcings, "colnames") # thpe: tricky :-(
+    
+    #cat(attr(forc, "colnames"), "\n\n")
     
     ## thpe: hard-coded indices "9" should be avoided. Use indirect variables
     itemp <- which(attr(forcings, "colnames") == "temp")

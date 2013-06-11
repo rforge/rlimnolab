@@ -1,10 +1,9 @@
 1) reorganize src code properly
 
-MacrophytesCore.h   contains funtion headers
-MacrophytesCore.cpp contains  functions
+MacrophytesCore.h   contains function headers
+MacrophytesCore.cpp contains functions
 
 MacrophytesCore.cpp includes only the .h not the .cpp
-
 
 - reorder function arguments to make order as logical as possible
 

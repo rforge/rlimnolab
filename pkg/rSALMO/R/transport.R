@@ -1,17 +1,24 @@
 transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
   dxx <- numeric(length(x))
-
-  isf   <- which(attr(forcings, "colnames") == "sf")
-  itemp <- which(attr(forcings, "colnames") == "temp")
-  iaver <- which(attr(forcings, "colnames") == "aver")
-  ivol  <- which(attr(forcings, "colnames") == "vol")
-  idz   <- which(attr(forcings, "colnames") == "dz")
+  cnames <- attr(forcings, "colnames")
+  
+  isf   <- which(cnames == "sf")
+  itemp <- which(cnames == "temp")
+  iaver <- which(cnames == "aver")
+  ivol  <- which(cnames == "vol")
+  idz   <- which(cnames == "dz")
   
   iO2 <- 8
-  
-  Area3 <- forc[, "vol"] / forc[, "dz"]
-  
+
   ni <- parms$nOfVar["numberOfInputs"]
+  
+  ## correct dimensions; reformat matrices??
+  #Area3 <- forcings[, "vol"] / forcings[, "dz"]
+  
+  ## calculate area from volume and depth
+  mforc <- matrix(forcings, nrow = ni)
+  Area3 <- mforc[ivol, ] / mforc[idz,]
+  Area3 <- c(Area3, Area3[length(Area3)])
 
   with(parms, {
 
