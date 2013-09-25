@@ -20,7 +20,7 @@ forc <- with(bautzen1997,
                depth  = s - 154,    # actual depth of the lake (m)
                dz     = 5,          # zmix, or layer depth (m)
                qin    = qin,        # water inflom (m^3 d^-1)
-               ased   = 0,          # sediment contact area of the layer (m^2 ??)
+               ased   = v/5,        # sediment contact area of the layer (m^2 ??)
                srf    = srf,        # strong rain factor, an empirical index of turbidity 
                iin    = iin,        # photosynthetic active radiation (J cm^2 d^-1); approx 50% of global irradiation
                temp   = temp,       # water temperature (deg. C)
@@ -52,6 +52,16 @@ forc <- as.matrix(forc)
 vsedi <- matrix(c(0,0,pp["VS",],0,0,0,0,0,0),nrow=1)
 inputs <- list(forcings=forc, vsedi=vsedi)
 
+
+## specify macrophyte heights
+## by setting fDepth1Veg=0.5 and fDepth2Veg=1 macrophytes grow in the lower half of the box. By 
+## setting fDepth1Veg=0 and fDepth2Veg=0.5 macrophytes grow only in the upper half of the box.
+## For this example I assume that macrophytes grow in the lower 4.5m of the box.
+## I need to let them grow so big, otherwise due to light limitation no macrophytes
+## will grow in eutrophic Bautzen reservoir.
+pp_ma["cMaxHeightVeg", 1] <- 4.5 # maximum height of macrophytes [m]
+pp_ma["fDepth1Veg",1] <- 5/50    # upper fraction of the box up to which submerged macrophytes grow [-]
+pp_ma["fDepth2Veg",1] <- 50/50  # lower fraction of the box down to which submerged macrophytes grow [-]
 
 
 ## A few parameters that are specific for Bautzen Reservoir
