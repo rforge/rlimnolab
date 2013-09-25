@@ -75,12 +75,12 @@ salmo_mac_1box <- function(time, states, parms, inputs) {
 
     dmacro <- arrangeStateWise(macro$dy.salmo, nstates, nlayers)
 
-    #vmat       <- inputs$vmat     * aFunVegSed
+    vsedi   <- inputs$vsedi   * aFunVegSed
     #vmatsedi   <- inputs$vmatsedi * aFunVegSed
 
     # thpe: transport for a single box
     # .... does not need ReacTran
-    dtransport <- - vmatsedi[1,] * y.salmo / forc["dz"]
+    dtransport <- - vsedi[1,] * y.salmo / forc["dz"]
 
     ## this function would require matrices
     #dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres,
