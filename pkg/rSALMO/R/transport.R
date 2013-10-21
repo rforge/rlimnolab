@@ -7,6 +7,7 @@ transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
   iaver <- which(cnames == "aver")
   ivol  <- which(cnames == "vol")
   idz   <- which(cnames == "dz")
+  ieddy <- which(cnames == "eddy")
   
   iO2 <- 8
   ni <- parms$nOfVar["numberOfInputs"]
@@ -22,7 +23,12 @@ transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
     dz   <- forcings[idz  + (0:(nlayers - 1) * ni)] # layer height
 
     ## diffusion coefficient
-    D    <- ifelse(1:(nlayers-1) <= idzmix, Depi, Dhypo)
+    if (Depi + Dhypo > 0) {
+      # fixed diffusivity values for epi- and hypolimnion
+      D <- ifelse(1:(nlayers-1) <= idzmix, Depi, Dhypo)
+    } else {
+      D <- forcings[ieddy  + (1:(nlayers - 1) * ni)]
+    }
     #Dzoo <- ifelse(1:(nlayers-1) <= idzmix, D + DIncrZooEpi, D + DIncrZooHyp)
     #if(time > 315) {
     #  D    <- c(0, D * SF(depths) * 2, 0) #no diffusion at upper and lower bounderies out of the system
@@ -64,7 +70,6 @@ transport <- function(x, forcings, parms, idzmix, zres, vmat, vmatsedi, time) {
 
     ## sedimentation into sediment (only calculated when external sedimentation is switched on / internal sedimentation is switched off)
     if(cc["SF"] == 0){
-
       depthsvec <- rep(depths, nstates)
       sedicheck <- ifelse(depthsvec > zres, TRUE, FALSE)
       sedi <- as.vector(vmatsedi[2:nrow(vmatsedi),]) / rep(dz, nstates) *  # vsink / dz

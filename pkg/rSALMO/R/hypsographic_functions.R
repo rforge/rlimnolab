@@ -82,15 +82,25 @@ hypso_functions <- function(table) {
   
   ## sediment contact area of a layer; especially useful if level > 1
   sediment_area <- function(level) {
+    ## bring into ascending order
+    ii <- order(level)
+    level <- level[ii]
     if (length(level) < 1) stop("level is empty")
     a <- area(level)
-    c(a[1], diff(a))
+    ret <- c(a[1], diff(a))
+    ## rearrange into original order
+    ret[ii]
   }
   
   pelagic_ratio <- function(level){
+    ## bring into ascending order
+    ii <- order(level)
+    level <- level[ii]
     total_area    <- area(level)
     sediment_area <- c(total_area[1], diff(total_area))
-    1 - sediment_area / total_area
+    ret <- 1 - sediment_area / total_area
+    ## rearrange into original order
+    ret[ii]
   }
   
   list(level = level, area = area, volume = volume,

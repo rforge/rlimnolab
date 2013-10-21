@@ -1,9 +1,10 @@
 SalmoMa <- function(time, states, parms, inputs) {
   cat("time = ", time, "\n")
-  
+
   if(any(states < 0)) {
     id <- which(states < 0)
-    print(paste(time, " warning a state went negative and was set to 1e-7 ", id))
+    #print(paste(time, " warning a state went negative and was set to 1e-7 ", id))
+    cat(state_names[id], "\n")
   }
   states <- ifelse(states < 0, 1e-7, states)
   
