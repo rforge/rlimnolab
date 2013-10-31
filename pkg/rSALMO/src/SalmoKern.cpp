@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /* Kernel module of SALMO 
-   contains separate functions for advection, diffision and reaction
+   contains separate functions for advection, diffusion and reaction
    call be called from R or any other integration interface
 
    JAVA version:         Steffen Dietze TU Ilmenau, 1997 
