@@ -1,12 +1,9 @@
 \docType{data}
-\name{unew}
-\alias{unew}
-\title{Input data set unew}
+\name{parms_mac_plants}
+\alias{parms_mac_plants}
+\title{parms_mac_plants data set}
 \description{
-  Input data set unew
-}
-\author{
-  My Name \email{blahblah@roxygen.org}
+  parms_mac_plants data set
 }
 \references{
   \url{http://www.tu-dresden.de/hydrobiologie}

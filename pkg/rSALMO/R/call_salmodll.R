@@ -1,18 +1,18 @@
 #' Call SALMO Shared Library
-#'
+#' 
 #' Call the shared library of SALMO
-#'
-#'
-#' @param cfunc  string, name of the C function to be called
+#' 
+#' 
+#' @param cfunc string, name of the C function to be called
 #' @param nOfVar vector with number of variables
-#' @param cc     vector of constants for the model
-#' @param pp     matrix of phytoplankton parameters
-#' @param uu     input vector (environmental conditions)
-#' @param xx     state vector
+#' @param cc vector of constants for the model
+#' @param pp matrix of phytoplankton parameters
+#' @param uu input vector (environmental conditions)
+#' @param xx state vector
+#' @return list, contains (1) past state and derivatives separated into (2)
+#' source and (3) sink term and (4) modified inputs
 #'
-#' @return list, contains (1) past state and derivatives separated into
-#'               (2) source and (3) sink term and (4) modified inputs
-
+#' @export call_salmodll
 call_salmodll <- function(cfunc, nOfVar, cc, pp, uu, xx) {
 
   ## allocate memory

@@ -10,10 +10,11 @@
 library(rSALMO)
 
 ## Data set from workgroup limnology of TU Dresden
-data(bautzen1997)
+data(data_bautzen_1997)
+
 
 ## Reformat old-style input data structure into new structure 
-forc <- with(bautzen1997, 
+forc <- with(data_bautzen_1997, 
              data.frame(
                time   = t,          # simulation time (in days)
                vol    = v,          # volume (m^3)
@@ -42,37 +43,15 @@ forc <- with(bautzen1997,
 forc <- as.matrix(forc)
 
 ## Read default parameter set. The order of the vector must not be changed!
-data(pp)  # Phytoplankton parameters of SALMO, matrix with 1 column per phytopl. species 
-data(cc)  # other SALMO parameters, vector
+parms <- get_salmo_parms()
+
 
 ## A few parameters that are specific for Bautzen Reservoir
-cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
+parms$cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
    c(0.005,   0.002,	    0,	 0.095,	   0,	         365,	     0.00,	 1.03)
 
 ## Background light extinction is lake specific
-cc["EPSMIN"] <- 0.7
-
-
-
-## Set of technical parameters, a.o. for dimensioning dynamic variables
-nOfVar <- c(
-  numberOfInputs      = 21,
-  numberOfOutputs     = 14,
-  numberOfStates      = 11,
-  numberOfParameters  = NA,
-  numberOfAlgae       = 3,
-  numberOfLayers      = 1,
-  numberOfTributaries = 4,
-  numberOfOutlets     = 3,
-  timestep = 1
-) 
-
-## Total number of parameters passed to the model (very important)
-nOfVar["numberOfParameters"] <- length(pp) / nOfVar["numberOfAlgae"]
-
-## Put all 3 kinds of model parameters in a list
-parms <- list(pp=pp, cc=cc, nOfVar=nOfVar)
-## -----------------------------------------------------------------------------
+parms$cc["EPSMIN"] <- 0.7
 
 
 ## Initial values
@@ -86,7 +65,7 @@ x0 <- c(N=5, P=10, X1=.1, X2=.1,  X3=.1, Z=.1, D=20, O=14, G1=0, G2=0, G3=0)
 
 
 ## Call one time for testing
-ret <- call_salmodll("SalmoCore", nOfVar, cc, pp, forc, x0)
+ret <- call_salmodll("SalmoCore", parms$nOfVar, parms$cc, parms$pp, forc, x0)
 
 ## Simulation time steps
 times <- seq(0, 365, 1)

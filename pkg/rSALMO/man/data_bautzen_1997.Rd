@@ -1,9 +1,9 @@
 \docType{data}
-\name{nOfVar}
-\alias{nOfVar}
-\title{nOfVar data set}
+\name{data_bautzen_1997}
+\alias{data_bautzen_1997}
+\title{Input data set data_bautzen_1997}
 \description{
-  nOfVar data set
+  Input data set data_bautzen_1997
 }
 \references{
   \url{http://www.tu-dresden.de/hydrobiologie}

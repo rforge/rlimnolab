@@ -1,9 +1,9 @@
 \docType{data}
-\name{nOfVar_ma}
-\alias{nOfVar_ma}
-\title{nOfVar_ma data set}
+\name{parms_mac_other}
+\alias{parms_mac_other}
+\title{parms_mac_other data set}
 \description{
-  nOfVar_ma data set
+  parms_mac_other data set
 }
 \references{
   \url{http://www.tu-dresden.de/hydrobiologie}

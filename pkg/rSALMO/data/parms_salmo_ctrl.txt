@@ -1,0 +1,10 @@
+id	value
+numberOfInputs	22
+numberOfOutputs	14
+numberOfStates	8
+numberOfParameters	22
+numberOfAlgae	3
+numberOfLayers	140
+numberOfTributaries	4
+numberOfOutlets	3
+timestep	0.01

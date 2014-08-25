@@ -1,9 +1,9 @@
 \docType{data}
-\name{cc_ma}
-\alias{cc_ma}
-\title{cc_ma data set}
+\name{hypso_bautzen}
+\alias{hypso_bautzen}
+\title{Data set hypso_bautzen}
 \description{
-  cc_ma data set
+  Hypsographic Table of Bautzen Reservoir
 }
 \references{
   \url{http://www.tu-dresden.de/hydrobiologie}

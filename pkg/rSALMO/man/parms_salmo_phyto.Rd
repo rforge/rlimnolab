@@ -1,0 +1,15 @@
+\docType{data}
+\name{parms_salmo_phyto}
+\alias{parms_salmo_phyto}
+\title{parms_salmo_phyto data set}
+\description{
+  Phytoplankton parameters of SALMO, data frame with 1
+  column per phytoplankton species, first column contains
+  parameter names.
+}
+\references{
+  \url{http://www.tu-dresden.de/hydrobiologie}
+}
+\keyword{data}
+\keyword{datasets}
+

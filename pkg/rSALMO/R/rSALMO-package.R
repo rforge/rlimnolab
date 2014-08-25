@@ -1,3 +1,4 @@
+
 #' Ecological Simulation of Lakes
 #'
 #' \tabular{ll}{
@@ -11,28 +12,24 @@
 #'
 #' An R implementation of the SALMO lake model\cr 
 #' (SALMO: Simulation by means of An analytical Lake MOdel)
-#'
-#'
 #' @name rSALMO-package
-#' @aliases rSALMO
+#' @aliases rSALMO rSALMO-package
 #' @docType package
-#' @title Ecological Simulation of Lakes
 #' @author Rene Sachse and Thomas Petzoldt (package)\cr
-#'
+#' 
 #' Susanne Rolinski (C code of SALMO)\cr
-#'
+#' 
 #' Juergen Benndorf + (system of equations of SALMO)\cr
-#'
+#' 
 #' Maintainer: Thomas Petzoldt <thomas.petzoldt@@tu-dresden.de>\cr
-#' @references
-#'   see \url{http://hhbio.wasser.tu-dresden.de/projects/salmo/}
-#' @keywords package
 #' @seealso \code{\link[deSolve:deSolve-package]{deSolve}}
+#' @references see \url{http://hhbio.wasser.tu-dresden.de/projects/salmo/}
+#' @keywords package
 #' @examples
 #' 
 #' demo("salmo_1box")
 #' demo("salmo_2box")
-#'    
 #' 
-{}
-
+#' @useDynLib rSALMO
+#' 
+NULL

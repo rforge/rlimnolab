@@ -1,0 +1,24 @@
+\name{salmo_mac_1d}
+\alias{salmo_mac_1d}
+\title{Derivatives of SALMO with macrophytes}
+\usage{
+  salmo_mac_1d(time, states, parms, inputs)
+}
+\arguments{
+  \item{time}{simulation time (days)}
+
+  \item{states}{state vector in correct order}
+
+  \item{parms}{list containing constant model parameters}
+
+  \item{inputs}{input vector (environmental conditions)}
+}
+\value{
+  list, first element contains the derivatives, other
+  elements can contain optional outputs
+}
+\description{
+  Main model function to be called from ode solvers (1D
+  version with macrophytes).
+}
+

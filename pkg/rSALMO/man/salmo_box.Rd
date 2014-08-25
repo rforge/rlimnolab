@@ -1,8 +1,11 @@
 \name{salmo_1box}
 \alias{salmo_1box}
+\alias{salmo_2box}
 \title{Derivatives of SALMO}
 \usage{
   salmo_1box(time, x, p, inputs)
+
+  salmo_2box(time, x, p, inputs)
 }
 \arguments{
   \item{time}{simulation time (days)}

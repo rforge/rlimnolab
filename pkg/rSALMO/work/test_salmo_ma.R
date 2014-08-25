@@ -159,7 +159,7 @@ rm(cc, pp, cc_ma, pp_ma, nOfVar, nOfVar_ma, nstates, nlayers)
 # depths required below
 
 tt <- system.time(
-  out   <- ode.1D(y=y0, times=times, func=SalmoMa, parms = parms, method="bdf", 
+  out   <- ode.1D(y=y0, times=times, func=salmo_mac_1d, parms = parms, method="bdf", 
     nspec = nspec, inputs = inputs)
 )
 print(tt)

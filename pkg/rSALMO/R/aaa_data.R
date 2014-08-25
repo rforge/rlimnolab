@@ -1,71 +1,75 @@
-#' Area3 data set
+#' parms_salmo_other data set
 #'
-#' @name Area3
+#' Other SALMO parameters (id, value - pairs)
+#'
+#' @name parms_salmo_other
 #' @docType data
 #' @references \url{http://www.tu-dresden.de/hydrobiologie}
 #' @keywords data
 #' 
 #' 
 NULL
-#' cc data set
+#' parms_mac_other data set
 #'
-#' @name cc
+#' @name parms_mac_other
 #' @docType data
 #' @references \url{http://www.tu-dresden.de/hydrobiologie}
 #' @keywords data
 #' 
 #' 
 NULL
-#' cc_ma data set
+#' parms_salmo_phyto data set
+#' 
+#' Phytoplankton parameters of SALMO, data frame with 1 column per phytoplankton species, first column contains parameter names.
 #'
-#' @name cc_ma
+#' @name parms_salmo_phyto
 #' @docType data
 #' @references \url{http://www.tu-dresden.de/hydrobiologie}
 #' @keywords data
 #' 
 #' 
 NULL
-#' pp data set
-#' 
-#' Phytoplankton parameters 
+#' parms_mac_plants data set
 #'
-#' @name pp
+#' @name parms_mac_plants
 #' @docType data
 #' @references \url{http://www.tu-dresden.de/hydrobiologie}
 #' @keywords data
 #' 
 #' 
 NULL
-#' pp_ma data set
+#' parms_salmo_ctrl data set
 #'
-#' @name pp_ma
+#' @name parms_salmo_ctrl
 #' @docType data
 #' @references \url{http://www.tu-dresden.de/hydrobiologie}
 #' @keywords data
 #' 
 #' 
 NULL
-#' nOfVar data set
+#' parms_mac_ctrl data set
 #'
-#' @name nOfVar
+#' @name parms_mac_ctrl
 #' @docType data
 #' @references \url{http://www.tu-dresden.de/hydrobiologie}
 #' @keywords data
 #' 
 #' 
 NULL
-#' nOfVar_ma data set
+#' Input data set data_bautzen_1997
 #'
-#' @name nOfVar_ma
+#' @name data_bautzen_1997
 #' @docType data
 #' @references \url{http://www.tu-dresden.de/hydrobiologie}
 #' @keywords data
 #' 
 #' 
 NULL
-#' Input data set uu
+#' Data set hypso_bautzen
 #'
-#' @name uu
+#' Hypsographic Table of Bautzen Reservoir
+#'
+#' @name hypso_bautzen
 #' @docType data
 #' @references \url{http://www.tu-dresden.de/hydrobiologie}
 #' @keywords data

@@ -1,9 +1,9 @@
 \docType{data}
-\name{pp}
-\alias{pp}
-\title{pp data set}
+\name{parms_salmo_other}
+\alias{parms_salmo_other}
+\title{parms_salmo_other data set}
 \description{
-  Phytoplankton parameters
+  Other SALMO parameters (id, value - pairs)
 }
 \references{
   \url{http://www.tu-dresden.de/hydrobiologie}

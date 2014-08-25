@@ -1,19 +1,21 @@
 #' Call SALMO Shared Library
-#'
-#' Call the shared library of SALMO
-#' (with additional states and parameters for macrophyte coupling)
-#'
-#'
-#' @param cfunc  string, name of the C function to be called
+#' 
+#' Call the shared library of SALMO (with additional states and parameters for
+#' macrophyte coupling)
+#' 
+#' 
+#' @param cfunc string, name of the C function to be called
 #' @param nOfVar vector with number of variables
-#' @param cc     vector of constants for the model
-#' @param pp     matrix of phytoplankton parameters
-#' @param uu     input vector (environmental conditions)
-#' @param xx     state vector
-#' @param pm     parameters for macrophytes
-#' @param mx     states of macrophytes (ReacTran format)
+#' @param cc vector of constants for the model
+#' @param pp matrix of phytoplankton parameters
+#' @param uu input vector (environmental conditions)
+#' @param xx state vector
+#' @param pm parameters for macrophytes
+#' @param mx states of macrophytes (ReacTran format)
 #'
 #' @return list, containing the derivatives as first element
+#' 
+#' @export call_salmodll_macrophytes
 call_salmodll_macrophytes <-
 function(
   cfunc,         # name of the C function to be called

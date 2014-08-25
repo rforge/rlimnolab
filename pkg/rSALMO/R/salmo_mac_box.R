@@ -1,3 +1,17 @@
+#' Derivatives of SALMO with macrophytes
+#' 
+#' Main model function to be called from ode solvers (1 box version with macrophytes).
+#' 
+#' 
+#' @param time simulation time (days)
+#' @param states state vector in correct order
+#' @param parms list containing constant model parameters
+#' @param inputs input vector (environmental conditions)
+#' @return list, first element contains the derivatives, other elements can
+#' contain optional outputs
+#'
+#' @rdname salmo_mac_box
+#' @export salmo_mac_1box
 salmo_mac_1box <- function(time, states, parms, inputs) {
 
   cat("time=", time, "\n")

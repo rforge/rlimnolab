@@ -1,15 +1,18 @@
 #' Derivatives of SALMO
+#' 
+#' Main model function to be called from ode solvers (Fully mixed one-box
+#' version).
+#' 
+#' 
+#' @param time simulation time (days)
+#' @param x state vector in correct order
+#' @param p list containing constant model parameters
+#' @param inputs input vector (environmental conditions)
+#' @return list, first element contains the derivatives, other elements can
+#' contain optional outputs
 #'
-#' Main model function to be called from ode solvers
-#' (Fully mixed one-box version).
-#'
-#' @param time   simulation time (days)
-#' @param x      state vector in correct order
-#' @param p      list containing constant model parameters
-#' @param inputs  input vector (environmental conditions)
-#'
-#' @return list, first element contains the derivatives,
-#'               other elements can contain optional outputs
+#' @rdname salmo_box
+#' @export salmo_1box
 
 salmo_1box <- function(time, x, p, inputs) {
   # save a few frequently used criteria to temporary variables
@@ -41,7 +44,8 @@ salmo_1box <- function(time, x, p, inputs) {
   list(dx - sed, iin = unname(uu["iin"]))
 }
 
-
+#' @rdname salmo_box
+#' @export salmo_2box
 salmo_2box <- function(time, x, p, inputs) {
   cat("time=", time, "\n")
   
@@ -53,8 +57,8 @@ salmo_2box <- function(time, x, p, inputs) {
   }
   x <- ifelse(x < 0, 1e-7, x)
   
-  noi <- nOfVar["numberOfInputs"]
-  nos <- nOfVar["numberOfStates"]
+  noi <- p$nOfVar["numberOfInputs"]
+  nos <- p$nOfVar["numberOfStates"]
   
   
   ## constants; should be made flexible

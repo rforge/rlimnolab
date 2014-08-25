@@ -13,4 +13,4 @@ RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
 BuildType: Package
-PackageRoxygenize: rd
+PackageRoxygenize: rd,collate,namespace

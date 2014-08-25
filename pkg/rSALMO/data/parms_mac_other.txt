@@ -1,0 +1,6 @@
+id	value
+oPO4S	2
+oNS	5
+hO2BOD	1
+molO2molC	2.6667
+cCPerDW	0.4

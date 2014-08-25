@@ -19,19 +19,19 @@ library(rSALMO)
 
 
 ## Data set from workgroup limnology of TU Dresden
-data(bautzen1997)
+data(data_bautzen_1997)
 
 ## Hypsographic table of Bautzen reservoir
-data(bautzen_hypso)
+data(hypso_bautzen)
 
-hyps <- hypso_functions(bautzen_hypso)
+hyps <- hypso_functions(hypso_bautzen)
 
 #bautzen1997$s
 
 ## sediment area of hypo- and epilimnion
 
 ## upper boundaries of hypo- and epilimnion
-levels <- with(bautzen1997, cbind(hypo = s-zmixreal, epi = s))
+levels <- with(data_bautzen_1997, cbind(hypo = s-zmixreal, epi = s))
 
 ## calculate sediment area row-wise for pairs of hypo and epilimnion depths
 ## "1" means row wise, t() means that result needs to be transposed
@@ -54,7 +54,7 @@ pelagic_ratio <- t(apply(levels, 1, hyps$pelagic_ratio))
 
 
 ## Reformat old-style input data structure into new structure
-forcE <- with(bautzen1997,
+forcE <- with(data_bautzen_1997,
              data.frame(
                time   = t,          # simulation time (in days)
                vol    = ve,          # volume (m^3)
@@ -82,7 +82,7 @@ forcE <- with(bautzen1997,
                x3in   = 0       # phytoplankton import of group 3 (w.w. mg L^-1)
              )
 )
-forcH <- with(bautzen1997,
+forcH <- with(data_bautzen_1997,
               data.frame(
                 time   = t,
                 vol    = vh,
@@ -114,13 +114,11 @@ forcH <- with(bautzen1997,
 forc <- as.matrix(cbind(forcE, forcH))
 
 
-
-## Read default parameter set. The order of the vector must not be changed!
-data(pp)  # Phytoplankton parameters of SALMO, matrix with 1 column per phytopl. species
-data(cc)  # other SALMO parameters, vector
+## Read default parameter set.
+parms <- get_salmo_parms()
 
 ## A few parameters that are specific for Bautzen Reservoir
-cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
+parms$cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
    c(0.005,   0.002,	    0,	 0.095,	   0,	         365,	     0.00,	 1.03)
 
 ## TEST TEST TEST
@@ -129,30 +127,10 @@ cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KNDST")]
 
 
 ## Background light extinction is lake specific
-cc["EPSMIN"] <- 0.7
+parms$cc["EPSMIN"] <- 0.7
 
 ## Check that internal sedimentation is switched off
-cc["SF"] == 0
-
-## Set of technical parameters, a.o. for dimensioning dynamic variables
-nOfVar <- c(
-  numberOfInputs      = 21,
-  numberOfOutputs     = 14,
-  numberOfStates      = 11,
-  numberOfParameters  = NA,
-  numberOfAlgae       = 3,
-  numberOfLayers      = 1,
-  numberOfTributaries = 4,
-  numberOfOutlets     = 3,
-  timestep            = 1  # dummy
-)
-
-## Total number of parameters passed to the model (very important)
-nOfVar["numberOfParameters"] <- length(pp) / nOfVar["numberOfAlgae"]
-
-## Put all 3 kinds of model parameters in a list
-parms <- list(pp=pp, cc=cc, nOfVar=nOfVar)
-## -----------------------------------------------------------------------------
+parms$cc["SF"] == 0
 
 
 ## Initial values
@@ -169,19 +147,19 @@ x0 <- c(N=5, P=10, X1=.1, X2=.1,  X3=.1, Z=.1, D=20, O=14, G1=0, G2=0, G3=0)
 x0 <- rep(x0, 2)
 
 ## Call one time for testing
-ret <- call_salmodll("SalmoCore", nOfVar, cc, pp, forc, x0)
+ret <- call_salmodll("SalmoCore", parms$nOfVar, parms$cc, parms$pp, forc, x0)
 
 ## Simulation time steps
 times <- seq(0, 365, 1)
 
-#times <- seq(0, 200, 1)
+times <- seq(0, 365, 0.1)
 
 ## Model simulation with "lsoda" from package deSolve
-#system.time(
-  out <- ode(x0, times, salmo_2box, parms = parms, method="lsoda", inputs=forc)
-#)
+## rtol adapted because of numerical problem at time = 132
+out <- ode(x0, times, salmo_2box, parms = parms, method="vode", inputs=forc, atol=1e-6, rtol=1e-2)
 
-plot(out, which=c("X1", "N", "P", "O", "iin"), mfrow=c(4,3))
+
+plot(out)
 
 
 ## Todo:

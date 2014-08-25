@@ -1,0 +1,21 @@
+\name{get_salmo_parms}
+\alias{get_salmo_parms}
+\title{Get SALMO Parameters}
+\usage{
+  get_salmo_parms(nlayers = 1, macrophytes = FALSE)
+}
+\arguments{
+  \item{nlayers}{integer specifying number of layers in 1D
+  case, must be 1 even in the two-box setting.}
+
+  \item{macrophytes}{TRUE if macrophyte parametes shoudl be
+  included}
+}
+\value{
+  a list with all required model parameters
+}
+\description{
+  Read default model parameters and construct parameter
+  list.
+}
+

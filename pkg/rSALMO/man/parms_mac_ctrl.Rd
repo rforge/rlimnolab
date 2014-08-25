@@ -1,9 +1,9 @@
 \docType{data}
-\name{uu}
-\alias{uu}
-\title{Input data set uu}
+\name{parms_mac_ctrl}
+\alias{parms_mac_ctrl}
+\title{parms_mac_ctrl data set}
 \description{
-  Input data set uu
+  parms_mac_ctrl data set
 }
 \references{
   \url{http://www.tu-dresden.de/hydrobiologie}

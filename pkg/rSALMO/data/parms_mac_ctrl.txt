@@ -1,0 +1,7 @@
+id	value
+numberOfInputs	2
+numberOfStates	4
+numberOfParameters	38
+numberOfAlgae	3
+numberOfPlants	1
+numberOfLayers	140

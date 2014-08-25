@@ -1,9 +1,9 @@
 \docType{data}
-\name{pp_ma}
-\alias{pp_ma}
-\title{pp_ma data set}
+\name{parms_salmo_ctrl}
+\alias{parms_salmo_ctrl}
+\title{parms_salmo_ctrl data set}
 \description{
-  pp_ma data set
+  parms_salmo_ctrl data set
 }
 \references{
   \url{http://www.tu-dresden.de/hydrobiologie}
