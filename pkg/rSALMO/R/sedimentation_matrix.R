@@ -10,7 +10,7 @@
 #' @param focussing two-valued vector for a linear sediment focussing heuristics
 #' @return matrix with sedimentation / migration velocities
 #'
-#' @example
+#' @examples
 #' 
 #' nstates <- 8 # nOfVar$numberOfStates
 #' nphy    <- 3 # nOfVar$numberOfAlgae
