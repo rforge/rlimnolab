@@ -15,8 +15,9 @@
 #' x <- as.matrix(forcings)
 #' xx <- layers_long2wide(x, "time", "depth")
 #' } % end dontrun
-
-
+#'
+#' @export layers_long2wide
+#'
 
 layers_long2wide <- function(x, rowname, colname) {
   if (is.data.frame(x)) x <- as.matrix(x)

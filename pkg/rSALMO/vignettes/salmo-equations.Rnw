@@ -90,6 +90,7 @@
  $RZMIN = 0.08$ & respiration rate of zooplankton at optimal temperature for feeding but without food supply ($d^{-1}$)\\
  $RZOPT = 0.22$ & respiration rate of zooplankton at optimal temperature for feeding and maximum ingestion rate ($d^{-1}$)\\
  $RZTMIN = 0.05$ & respiration rate of zooplankton near O °C and optimal food supply ($d^{-1}$)\\
+ $SEZMAX = 0.4$ & maximum oxygen consumption by the sediment ($g$ $O_2$ $m^{-3} d^{-1}$)\\
  $EPSR = 0.2668$ & specific light extinction coefficient due to turbidity and erosion at strong rain events ($m^2$ $g^{-1}$)\\
  $TOPTZ = 20$ & optimal temperature for feeding activity of the zooplankton (°$C$)\\
  $UXZD = 0.75$ & factor of the physiological utilisation of detritus by zooplankton (-)\\
@@ -701,7 +702,7 @@ miner_d & =
 \end{align*}
 
 \begin{align*}
-16.10 \hspace{0.5cm} seza = (neuer Parameter) \cdot \exp(0.08
+16.10 \hspace{0.5cm} seza = SEZMAX \cdot \exp(0.08
 \cdot temp) \cdot \frac{o}{KSEZA + o}
 \end{align*}
 

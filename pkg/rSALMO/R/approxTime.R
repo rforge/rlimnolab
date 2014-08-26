@@ -7,12 +7,12 @@
 #' The functions can be used for linear interpolation with a complete matrix or
 #' data frame. This can be used for example in the main function of an
 #' \code{odeModel} to get input values at a specified time \code{xout}.
-#' Versions \code{approxTime1} and \code{approxTimeEq} are less flexible 
-#' (only one single value for \code{xout} resp. equidistant values of of time in \code{x}
+#' Versions \code{approxTime1}, \code{approxTimeEq} amd \code{approxTimeEq1} are less flexible 
+#' (only one single value for \code{xout} or/and equidistant values of of time in \code{x}
 #' and only linear interpolation) but have increased performance.  All interpolation
 #' functions are faster if \code{x} is a matrix instead of a data frame.
 #' 
-#' @aliases approxTime approxTime1 approxTimeEq
+#' @aliases approxTime approxTime1 approxTimeEq approxTimeEq1
 #' @param x a matrix or data frame with numerical values giving coordinates of
 #' points to be interpolated. The first column needs to be in ascending order
 #' and is interpreted as independent variable (e.g. time), the remaining
@@ -83,8 +83,10 @@ approxTime1 <- function (x, xout, rule = 1) {
   y
 }
 
+#'
 #' @rdname approxTime
 #' @export approxTimeEq
+#'
 approxTimeEq <- function(x, xout, ...) {
   if (is.data.frame(x)) {x <- as.matrix(x); wasdf <- TRUE} else wasdf <- FALSE
   if (!is.matrix(x)) stop("x must be a matrix or data frame")
@@ -108,4 +110,41 @@ approxTimeEq <- function(x, xout, ...) {
   if (wasdf) y <- as.data.frame(y)
   names(y) <- dimnames(x)[[2]]
   y
-} 
+}
+
+#'
+#' @rdname approxTime
+#' @export approxTimeEq1
+#'
+approxTimeEq1 <- function (x, xout, rule = 1) {
+  if (!is.matrix(x)) x <- as.matrix(x)
+  if ((!is.numeric(xout)) | (length(xout) != 1))
+    stop("xout must be a scalar numeric value")
+  if ((!is.numeric(rule)) | (length(rule) != 1))
+    stop("rule must be a scalar numeric value")
+  
+  n <- nrow(x)
+  if (xout >= x[n, 1]) {
+    y <- c(xout, x[n, -1])
+    if (rule == 1 & (xout > x[n + 1]))
+      y[2:length(y)] <- NA
+  }
+  else if (xout <= x[1, 1]) {
+    y <- c(xout, x[1, -1])
+    if (rule == 1 & (xout < x[1]))
+      y[2:length(y)] <- NA
+  }
+  else {
+    #i1 <- which.max(x[, 1] > xout)
+    #i <- max(min(floor(n  * (xout - x[1,1]) / (x[n,1] - x[1,1]) + x[1,1]), n-1), 1) + 1
+    i <- ceiling((n - 1) * (xout - x[1,1]) / (x[n,1] - x[1,1])) + 1
+    #if (i != i1) cat(i1, "...\t", i, "\n")
+    x1 <- x[i - 1, 1]
+    x2 <- x[i, 1]
+    y1 <- x[i - 1, ]
+    y2 <- x[i, ]
+    y <- y1 + (y2 - y1) * (xout - x1)/(x2 - x1)
+  }
+  names(y) <- dimnames(x)[[2]]
+  y
+}

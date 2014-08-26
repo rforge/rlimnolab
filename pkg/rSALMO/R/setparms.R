@@ -9,6 +9,7 @@
 #' @param pnames vector of parameter names that shoudl be replaced
 #' @param values vector of replacement values
 #' @param col column in matrix-like parameter objects
+#' @parms slot character id of a list element if \code{obj} is a list
 #' @return the manipulated \code{obj} (vector, matrix or list)
 #' @examples
 #' 
@@ -22,34 +23,42 @@
 #' 
 #' @export setparms
 
-setparms <- function(obj, pnames, values, col = 1) {
+setparms <- function(obj, pnames, values, col = 1, slot = NA) {
   if (length(pnames) != length(values)) 
     stop("Length of pnames and values do not match.")
-  
   parvec <- obj # will be extended to other objects
   
-  if (is.matrix(obj)) {
-    xnames <- rownames(obj)
-  } else if (is.vector(obj)) {
-    xnames <- names(obj)
+  ## if list, call setparms recursively one level
+  if (is.list(obj)) { 
+    if (!is.null(obj[[slot]])) {
+      obj[[slot]] <- setparms(obj[[slot]], pnames = pnames, values = values, col = col, slot = NA)
+    } else {
+      warning("Slot not found")  
+    }
   } else {
-    stop("Don't know how to handle obj of class ", class(obj))
-  }
+    if (is.matrix(obj)) {
+      xnames <- rownames(obj)
+    } else if (is.vector(obj)) {
+      xnames <- names(obj)
+    } else {
+      stop("Don't know how to handle obj of class ", class(obj))
+    }
 
-  xnames   <- toupper(xnames)
-  ynames   <- toupper(pnames)
-  
-  matching <- ynames %in% xnames
-  
-  missing   <- pnames[!(matching)]
-  if (length(missing > 0))
-    warning("Parameter/s) ", paste(missing, collapse =", "), " not found")
-  
-  if(is.matrix(obj)) {
-    obj[na.omit(pmatch(ynames, xnames)), col] <- values[which(matching)]  
-  } else {
-    obj[na.omit(pmatch(ynames, xnames))] <- values[which(matching)]  
+    ## modify vector or matrix component
+    xnames   <- toupper(xnames)
+    ynames   <- toupper(pnames)
+    
+    matching <- ynames %in% xnames
+    
+    missing   <- pnames[!(matching)]
+    if (length(missing > 0))
+      warning("Parameter/s) ", paste(missing, collapse =", "), " not found")
+    
+    if(is.matrix(obj)) {
+      obj[na.omit(pmatch(ynames, xnames)), col] <- values[which(matching)]  
+    } else {
+      obj[na.omit(pmatch(ynames, xnames))] <- values[which(matching)]  
+    }
   }
-  
   obj
 }

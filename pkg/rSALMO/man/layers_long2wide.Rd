@@ -1,0 +1,27 @@
+\name{layers_long2wide}
+\alias{layers_long2wide}
+\title{Reformat Layer Strcuture from Long Format to Wide Format}
+\usage{
+  layers_long2wide(x, rowname, colname)
+}
+\arguments{
+  \item{x}{matrix or data frame that is to be reformatted}
+
+  \item{rowname}{name of the variable that is used as the
+  row name}
+
+  \item{colname}{name of the variable that is used as the
+  column name}
+}
+\value{
+  matrix
+
+  \dontrun{ forcings <- read.table("forcings.txt",
+  header=TRUE) x <- as.matrix(forcings) xx <-
+  layers_long2wide(x, "time", "depth") } % end dontrun
+}
+\description{
+  The function takes a data-base type table and returns a
+  table in wide format.
+}
+

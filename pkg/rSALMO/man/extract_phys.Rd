@@ -1,0 +1,28 @@
+\name{extract_phys}
+\alias{extract_phys}
+\title{Extract Physical Structure from Input Data}
+\usage{
+  extract_phys(dat, times, depths)
+}
+\arguments{
+  \item{dat}{data set with columns ``depth'', ``temp'' and
+  ``eddy''}
+
+  \item{times}{vector of requested time steps for
+  interpolation}
+
+  \item{depths}{vector of requested depths for
+  interpolation}
+}
+\value{
+  list with matrices ``eddy'', ``temp'' and ``depth''
+
+  depths <- seq(70, 0, -0.5) times <- unique(dat$time) #
+  example to be continued ...
+}
+\description{
+  The function takes a data-base type table and returns a
+  list with interpolated matrices for eddy diffusivity,
+  temperature and depths
+}
+

@@ -1,0 +1,26 @@
+\name{plot_inputs}
+\alias{plot_inputs}
+\title{Plot Inputs of a 1D Model}
+\usage{
+  plot_inputs(x, variable, plot = TRUE, ...)
+}
+\arguments{
+  \item{x}{input matrix (forcing data)}
+
+  \item{variable}{variable name to be plotted}
+
+  \item{plot}{boolean whether the plot shoudl be shown
+  \code{TRUE}}
+
+  \item{\dots}{further arguments passed to image2D}
+}
+\value{
+  subset containing only the requested variable, useful for
+  further analysis
+
+  #example
+}
+\description{
+  Plot Inputs of a 1D Model
+}
+
