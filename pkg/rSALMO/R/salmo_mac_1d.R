@@ -36,18 +36,17 @@ salmo_mac_1d <- function(time, states, parms, inputs) {
     #temp      <- forc[9 + (0:(nlayers - 1) * ni)] #layer temperature 
     temp       <- forc[itemp + (0:(nlayers - 1) * ni)] #layer temperature 
     zmixret    <- calczmix(temp, depths)
+    # test test test
+    if (syslog) cat(time, "\t", zmixret$idzmix, "\t", zmixret$zres, "\n", file="logfile.log", append = TRUE)
+    if (zmixret$zres > 30) zmixret <- list(idzmix=60, zres=30) # !!! depth hard coded
+    # end test
     cc["Zres"] <- zmixret$zres          # set resuspension depth to mixing depth
-    
-    ## todo: 
-    ##   make order of function arguments more logical and more consistent
-    ##   - e.g. scalars first (e.g. t, ...
-    ##   - or: like deSolve (t, x, p)
-    ##              
-  
+ 
     ## call SALMO core for every layer and returns derivatives for all layers  
     dy.salmo <- numeric(length(y.salmo))
     ## reorder states for use with SALMO
     y.tmp  <- arrangeLayerWise(y.salmo, nOfVar["numberOfStates"], nOfVar["numberOfLayers"])
+    # y.tmp  <- arrangeLayerWise(y.salmo, nstates, nlayers) # would be better!
     salmo <- .C(
       "MReaktion",
       as.integer(nOfVar),
@@ -88,11 +87,14 @@ salmo_mac_1d <- function(time, states, parms, inputs) {
      
     dmacro <- arrangeStateWise(macro$dy.salmo, nstates, nlayers)
 
-    vmat       <- inputs$vmat     * aFunVegSed
+    #vmat       <- inputs$vmat     * aFunVegSed
     vmatsedi   <- inputs$vmatsedi * aFunVegSed
     
-    dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres, 
-      vmat, vmatsedi, time)
+    #dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres, 
+    #  vmat, vmatsedi, time)
+
+    dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres,
+      vmatsedi)
     
     ## state equation
     dy.salmo    <- dreaction + dtransport + dmacro 

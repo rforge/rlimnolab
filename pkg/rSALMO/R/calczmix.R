@@ -1,3 +1,13 @@
+#' Calculate Mixing Depth
+#'
+#' Calculate mixing depth from temperature profile using a simple temperature threshold.
+#'
+#' @param temp vector of temperatures (from top to bottom (?))
+#' @param depths vector of depths
+#' @return list with id and depth of zmix
+#'
+#' @export calczmix
+
 calczmix <- function(temp, depths) {
   nlayers    <- length(temp)
   t_tresh    <- 1 * (depths[2] - depths[1])
