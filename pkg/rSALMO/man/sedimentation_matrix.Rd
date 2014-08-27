@@ -2,17 +2,20 @@
 \alias{sedimentation_matrix}
 \title{Create Sedimentation and Migration Matrix for SALMO-1D}
 \usage{
-  sedimentation_matrix(parms, nstates, nphy, depths,
-    focussing = c(1, 5))
+  sedimentation_matrix(parms, nstates = NULL, nphy = NULL,
+    depths = NULL, focussing = c(1, 5))
 }
 \arguments{
   \item{parms}{SALMO parameter list}
 
-  \item{nstates}{total number of state variables}
+  \item{nstates}{total number of state variables
+  (deprecated !!!)}
 
-  \item{nphy}{number of phytoplankton groups}
+  \item{nphy}{number of phytoplankton groups (deprecated
+  !!!)}
 
-  \item{depths}{vector of individual depths (m)}
+  \item{depths}{vector of individual depths (m) (deprecated
+  !!!)}
 
   \item{focussing}{two-valued vector for a linear sediment
   focussing heuristics}

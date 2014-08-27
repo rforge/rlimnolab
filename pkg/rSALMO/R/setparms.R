@@ -11,7 +11,7 @@
 #'   vector of parameter names that will be replaced
 #' @param col column in matrix-like parameter objects
 #' @parms slot character, name of a single list element of \code{parms}
-#' @return the manipulated \code{obj} (vector, matrix or list)
+#' @return the manipulated \code{parms} object (vector, matrix or list)
 #' @examples
 #' 
 #' data(cc)

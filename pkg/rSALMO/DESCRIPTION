@@ -43,3 +43,4 @@ Collate:
     'salmo_state_names.R'
     'sedimentation_matrix.R'
     'setparms_util.R'
+    'checkparms.R'

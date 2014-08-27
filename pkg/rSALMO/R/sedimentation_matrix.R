@@ -5,9 +5,9 @@
 #' ToDo: pass parameters regularly to this function
 #'
 #' @param parms     SALMO parameter list
-#' @param nstates   total number of state variables
-#' @param nphy      number of phytoplankton groups
-#' @param depths    vector of individual depths (m)
+#' @param nstates   total number of state variables  (deprecated !!!)
+#' @param nphy      number of phytoplankton groups   (deprecated !!!)
+#' @param depths    vector of individual depths (m)  (deprecated !!!)
 #' @param focussing two-valued vector for a linear sediment focussing heuristics
 #' @return matrix with sedimentation / migration velocities
 #'
@@ -22,8 +22,13 @@
 #' @export sedimentation_matrix
 #'
 
-sedimentation_matrix <- function(parms, nstates, nphy, depths, focussing = c(1, 5)) {
+sedimentation_matrix <- function(parms, nstates=NULL, nphy=NULL, depths=NULL, focussing = c(1, 5)) {
+  if (is.null(nstates)) nstates <- parms$nstates
+  if (is.null(nphy))    nphy    <- parms$nphy
+  if (is.null(depths))  depths  <- parms$depths
+  
   nlayers <- length(depths)
+  
   v <- numeric(nstates)
   v[3:(2+nphy)] <- parms$pp["VS",] # phytoplankton sinking velocities
   v[3+nphy+1]   <- parms$cc["VD"]  # detritus sinking velocity

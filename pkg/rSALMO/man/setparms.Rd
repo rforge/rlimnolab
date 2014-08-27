@@ -18,7 +18,8 @@
   \item{col}{column in matrix-like parameter objects}
 }
 \value{
-  the manipulated \code{obj} (vector, matrix or list)
+  the manipulated \code{parms} object (vector, matrix or
+  list)
 }
 \description{
   Robustly replace model parameters by ignoring
