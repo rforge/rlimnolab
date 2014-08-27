@@ -2,16 +2,18 @@
 \alias{setparms}
 \title{Set Model Parameters}
 \usage{
-  setparms(obj, pnames, values, col = 1, slot = NA)
+  setparms(parms, values, pnames = NULL, col = 1,
+    slot = NA)
 }
 \arguments{
-  \item{obj}{data object containing model parameters
-  (currently only vector and matrix implemented)}
+  \item{parms}{data object containing model parameters as a
+  vector, a matrix or a non-nested list of vectors and
+  matrices}
 
-  \item{pnames}{vector of parameter names that shoudl be
-  replaced}
+  \item{values}{vector or list of replacement values}
 
-  \item{values}{vector of replacement values}
+  \item{pnames}{if \code{values} is a vector or matrix:
+  vector of parameter names that will be replaced}
 
   \item{col}{column in matrix-like parameter objects}
 }

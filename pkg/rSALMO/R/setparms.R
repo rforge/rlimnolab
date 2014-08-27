@@ -37,13 +37,14 @@ setparms <- function(parms, values, pnames = NULL, col = 1, slot = NA) {
       parms <- setparms_list(parms, values)
       ## if only first argument is a list, call setparms recursively one level
     } else if (!is.null(parms[[slot]])) {
-      parms[[slot]] <- setparms(parms[[slot]], pnames = pnames, values = values, col = col, slot = NA)
+      parms[[slot]] <- setparms(parms[[slot]], values = values, pnames = pnames, col = col, slot = NA)
     } else {
+      cat(slot, "\n")
       warning("Slot not found")  
     }
     ## if 1st argument is a vector or matrix  
   } else {
-    parms <- setparms_matrix(parms, values)
+    parms <- setparms_matrix(parms, values, pnames, col = col)
   }
   parms
 }
