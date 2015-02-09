@@ -96,7 +96,7 @@ hypso_functions <- function(table) {
     level <- level[ii]
     total_area    <- area(level)
     sediment_area <- c(total_area[1], diff(total_area))
-    ret <- 1 - sediment_area / total_area
+    ret <- ifelse(total_area == 0, 0, 1 - sediment_area / total_area)
     ## rearrange into original order
     ret[ii]
   }

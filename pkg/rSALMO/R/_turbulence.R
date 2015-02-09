@@ -1,0 +1,60 @@
+#' Turbulence Data Set
+#'
+#' Example Data set with simulated 2hourly turbulence and temperature data for 
+#'   a conic virtual lake.
+#' 
+#' @details Data were simulated with the General Ocean Turbulence Model (GOTM;
+#' Stips et al 2002, Burchardt et al. 2007) for a lake with conic morphometry 
+#' and then linearly interpolated to equidistant depths. Conductivity was set 
+#' to zero and is omitted. See Sachse et al. (2014) for further details of the 
+#' model setup.
+#'   
+#'
+#' @format List with the following elements:
+#' \describe{
+#'   \item{time}{vector with time (days)}
+#'   \item{level}{vector with water level above ground (m)}
+#'   \item{temp}{matrix of simulated water temperatures (deg C)}
+#'   \item{eddy}{matrix of simulated eddy diffusivity (m^2/s)}
+#' }
+#'
+#' @source 
+#' 
+#' Simulations of Sachse et al. (2014).
+#'   
+#' @references
+#' 
+#' Sachse, R., Petzoldt, T., Blumstock, M., Moreira, S., Pätzig, M., 
+#'   Rücker, J., Janse, J. H., Mooij, W. M., Hilt, S. (2014)
+#'   Extending one-dimensional models for deep lakes to simulate the impact of 
+#'   submerged macrophytes on water quality.
+#'   Environmental Modelling & Software, 61, 410-423
+#' 
+#'  Stips, A., Burchard, H., Bolding, K., Eifler, W. (2002)
+#'    Modelling of convective turbulence with a two-equation k-epsilon 
+#'    turbulence closure scheme Ocean Dynamics. Springer Berlin / Heidelberg, 
+#'    52, 153-168
+#'    
+#'  Umlauf, L., Burchard, H., Bolding, K. (2007) GOTM Sourcecode and 
+#'    Documentation. Version 4.0. \url{http://www.gotm.net}
+#'
+#' @name turbulence
+#' @docType data
+#' @keywords data
+#'
+#' @examples
+#' 
+#' library(plot3D)
+#' library(RColorBrewer)
+#' 
+#' data(turbulence)
+#' 
+#' myPalette <- colorRampPalette(rev(c(brewer.pal(11, "RdYlBu"), "darkblue")))
+#' image2D(x=turbulence$time, y=turbulence$depth,
+#'   z=list(turbulence$temp, turbulence$eddy),
+#'   main=c("T", "Diff"), las=1, col=myPalette(100), ask=FALSE,
+#'   clab=list("°C", "m²/d")
+#' )
+
+
+NULL

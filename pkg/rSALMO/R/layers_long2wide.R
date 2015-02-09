@@ -10,6 +10,7 @@
 #'
 #' @return matrix
 #'
+#' @examples
 #' \dontrun{
 #' forcings <- read.table("forcings.txt", header=TRUE)
 #' x <- as.matrix(forcings)

@@ -13,6 +13,7 @@
 #' functions are faster if \code{x} is a matrix instead of a data frame.
 #' 
 #' @aliases approxTime approxTime1 approxTimeEq approxTimeEq1
+#' 
 #' @param x a matrix or data frame with numerical values giving coordinates of
 #' points to be interpolated. The first column needs to be in ascending order
 #' and is interpreted as independent variable (e.g. time), the remaining
@@ -29,6 +30,7 @@
 #' respect to \code{xout}.  \code{approxTime1} is a performance optimized
 #' special version with less options than the original \code{approx} function.
 #' It returns an interpolated vector.
+#' 
 #' @seealso \code{\link[stats]{approxfun}}
 #' @keywords arith
 #' @examples
@@ -148,3 +150,34 @@ approxTimeEq1 <- function (x, xout, rule = 1) {
   names(y) <- dimnames(x)[[2]]
   y
 }
+
+#'
+#' @rdname approxTime
+#' @export findIndexEq
+#'
+findIndexEq <- function (x, xout, rule = 1) {
+  if (!is.vector(x)) 
+    stop("x must be a vector")
+  if ((!is.numeric(xout)) | (length(xout) != 1))
+    stop("xout must be a scalar numeric value")
+  if ((!is.numeric(rule)) | (length(rule) != 1))
+    stop("rule must be a scalar numeric value")
+  
+  n <- length(x)
+  if (xout >= x[n]) {
+    i <- n
+    if (rule == 1 & (xout > x[n]))  i <- NA
+  }
+  else if (xout <= x[1]) {
+    i <- 1
+    if (rule == 1 & (xout < x[1]))  i <- NA
+  }
+  else {
+    #i1 <- which.max(x[, 1] > xout)
+    #i <- max(min(floor(n  * (xout - x[1,1]) / (x[n,1] - x[1,1]) + x[1,1]), n-1), 1) + 1
+    i <- ceiling((n - 1) * (xout - x[1]) / (x[n] - x[1])) + 1
+    
+  }
+  return(i)
+}
+
