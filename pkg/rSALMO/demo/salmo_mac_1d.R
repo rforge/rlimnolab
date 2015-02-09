@@ -1,7 +1,7 @@
 library(rSALMO)
 library(plot3D)
 
-parms <- get_salmo_parms(nlayers=61, macrophytes=TRUE)
+parms <- get_salmo_parms(nlayers=60, macrophytes=TRUE)
 
 parms$pp_ma["kMortVegSum", 1]  <- 0.01 # [d^-1] Background mortality, little bit increased
 parms$pp_ma["MaxWaveMort", 1]  <- 0    # [d^-1] MortWaveMax = 0  -> no wave mortality
@@ -12,7 +12,7 @@ parms$pp_ma["MaxWaveMort", 1]  <- 0    # [d^-1] MortWaveMax = 0  -> no wave mort
 
 parms$pp["EPSX",] <-  c(0.03, 0.02, 0.02) * 5 # specific extinction coefficients (from AEMON database, converted from mg Chl m^-3 to g WW m^-3 by factor of 5)
 parms$pp["VS",] <- c(0.1, 0.4, 0.4)        # [m/d] settling velocity for phyto-plankton (?? from Rinke et. al. 2010)
-parms$pp["VS",] <- c(0.1, 0.2, 0.2)        # [m/d] settling velocity for phyto-plankton
+#parms$pp["VS",] <- c(0.1, 0.2, 0.2)        # [m/d] settling velocity for phyto-plankton
 
 parms$cc["SEZMAX"] <- 0.05 # 0.4
 parms$cc["APSFMIN"] <- 2
@@ -45,7 +45,7 @@ ndepth      <- length(depth)
 maxdepth    <- max(depth)
 
 ## fixme
-depth[61] <- 0.25
+#depth[61] <- 0.25
 
 level <- maxdepth - depth
 
@@ -60,9 +60,11 @@ depthmatrix <- matrix(rep(depth, each=ntime), nrow=ntime)[, ndepth:1]
 
 dzmatrix    <- matrix(0.5, nrow=ntime, ncol=ndepth)
 
-#emptymatrix <- matrix(0, nrow=ntime, ncol=ndepth)
-#qinmatrix   <- emptymatrix
+emptymatrix <- matrix(0, nrow=ntime, ncol=ndepth)
+qinmatrix   <- emptymatrix
 
+# entrainment of tributaries; specific depths, Q dependend on residence time
+qinmatrix[,1:11] <- rep(vol[21:31]/300, each=ntime) 
 
 
 ## sediment area
@@ -87,8 +89,20 @@ daily <- data.frame(
   irad = daily$irad * 0.5 # iglobal -> par
 )
 
+## Jan + Feb with ice
+
 # ice and snow???
-#iin <- forcings$iin * (1 - 0.9 * (icesnow$ice > 5))
+iin <- daily$irad * (1 - 0.9* (daily$time < as.POSIXct("2005-03-01")))
+
+## Susanne's 1... 5 heuristics
+#sfmatrix <- 1 + 4 * depthmatrix/maxdepth, # 1 ... 5
+## ist jetzt schon in vmatsedi drin.
+
+sfmatrix <- emptymatrix
+
+sfmatrix[,(ndepth -2):ndepth] <- 10 # sticky bottom: 10 fold sedimentation 
+sfmatrix[, ndepth] <- 10 # sticky bottom: 10 fold sedimentation 
+
 
 
 ## sedimentation speed for each state in different depths
@@ -113,13 +127,8 @@ names(y0) <- NULL
 
 parms2 <- c(parms,
   list(
-    #Depi = 0,#50,  # zero or negative values switch "eddy" on
-    #Dhypo = 0,# 1,  #
     K2 = 1.0,   # reaeration from atmosphere
-    #cc = cc, pp = pp, 
-    #cc_ma = cc_ma, pp_ma = pp_ma,
-    #nOfVar = nOfVar, nOfVar_ma = nOfVar_ma,
-    depths = rev(depth),  # !!! ToDo: order
+    depths = rev(depth),  # !!! ToDo: make this obsolete
     nstates = nstates,
     nlayers = nlayers,
     ni = ni   # number of inputs
@@ -127,39 +136,37 @@ parms2 <- c(parms,
 )
 
 inputs <- list(
-  time = time,
-  vol  = vol,
+  time  = time,
+  vol   = vol,
   depth = depthmatrix, # vector would be enough here
   dz    = dzmatrix,    # scalar 0.5  
-  qin = 0,
-  ased= asedmatrix,
-  srf=1,
-  iin = daily$irad,
-  temp = tempmatrix,
-  nin =0,
-  pin=0,
-  pomin=0,
-  zin=0,
-  oin=0,
-  aver = avermatrix,
-  ad=0,
-  au=0,
-  eddy = eddymatrix,
-  x1in=0,
-  x2in=0,
-  x3in=0,
-  sf   = 1,# + 4 * depthmatrix/maxdepth, # 1 ... 5
+  qin   = qinmatrix,
+  ased  = asedmatrix,
+  srf   = 1,
+  iin   = iin,
+  temp  = tempmatrix,
+  nin   = 10,
+  pin   = 50,
+  pomin = 50,
+  zin   = 1,
+  oin   = 10,
+  aver  = avermatrix,
+  ad    = 0,
+  au    = 0,
+  eddy  = eddymatrix,
+  x1in  = 5,
+  x2in  = 5,
+  x3in  = 5,
+  sf    = sfmatrix,
   vmatsedi = vmatsedi
 )
 
-tmp <- NULL
 
 ## forcing **function**
 forcing_functions <- function(inputs) {
   cnt <- 0
-  
-  ## do some precalculations ...
-  
+
+  ## otional:do some precalculations ...
   colnames <- salmo_input_names()
   
   forcings = function(time) {
@@ -169,27 +176,19 @@ forcing_functions <- function(inputs) {
       cnt <<- 0
       cat("time := ", time, "\n")
     }
+
     ## ..... do interpolation here .....
     forc <- makeInputVector(inputs, time)
-    
-    tmp <<- forc
-    
-    #forc <- makeInputVector(inputs, 0)
     
     attr(forc, "colnames") <- colnames
     
     ## check data and fix inconsistencies
     ## temperature must not be <= 0
-    forc[seq(9, 1342, 22)] <- pmax(forc[seq(9, 1342, 22)], 0.1)
+    forc[seq(9, 1320, 22)] <- pmax(forc[seq(9, 1320, 22)], 0.1)
     forc
   }
 }
 signal <- forcing_functions(inputs)
-
-
-### ..........
-### ..........
-### ..........
 
 nspec <- parms2$nOfVar["numberOfStates"] + parms2$nOfVar_ma["numberOfStates"]  
 
@@ -214,7 +213,7 @@ nspec <- parms2$nstates
 
 #par(mfrow=c(1,2))
 #ii <- 18
-#sig <- signal(120);        plot(sig[seq(ii, 61*22, 22)])
+#sig <- signal(120);        plot(sig[seq(ii, 60*22, 22)])
 #sig <- inp_stechlin[120,]; plot(sig[seq(ii, 140*22, 22)])
 
 
@@ -257,8 +256,8 @@ image(out, grid = xmids, which=i, main=names[i], ylim=c(30,0), legend=TRUE)
 image(out, grid = xmids, which=2, main=names[2], ylim=c(30,0), zlim=c(0,20), legend=TRUE)
 
 ## X ... Z
-image(out, grid = xmids, which=3:5, main=names[3:5], ylim=c(30,0), zlim=c(0,5), legend=TRUE)
-image(out, grid = xmids, which=6, main=names[6], ylim=c(30,0), zlim=c(0,.2), legend=TRUE)
+image(out, grid = xmids, which=3:5, main=names[3:5], ylim=c(30,0), zlim=c(0,10), legend=TRUE)
+image(out, grid = xmids, which=6, main=names[6], ylim=c(30,0), zlim=c(0,1), legend=TRUE)
 
 
 ### plot of SALMO inputs
