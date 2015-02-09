@@ -1,18 +1,20 @@
 Package: rSALMO
 Type: Package
 Title: Simulation of ecological lake models
-Version: 0.2.2
-Date: 2014-08-25
+Version: 0.2.3
+Date: 2015-02-02
 Depends:
     deSolve,
     rootSolve,
-    ReacTran
+    ReacTran,
+    plot3D,
+    RColorBrewer
 Author: Thomas Petzoldt, Susanne Rolinski and Rene Sachse
 Maintainer: Thomas Petzoldt <thomas.petzoldt@tu-dresden.de>
 Description: Simulation of ecological lake models. The current version of the
     package contains the C implementation of the lake model SALMO-II and an
     additional macrophytethat module can be run
-    in 0D (1 box), 0.5 D (2 box) and vertically resolved 1D.
+    in 0D (1 box), 0.5 D (2 box) and vertically resolved in 1D.
 License: GPL (>= 2)
 URL: http://rlimnolab.r-forge.r-project.org/
 Collate:
@@ -27,6 +29,7 @@ Collate:
     'hypsographic_functions.R'
     'layers2vector.R'
     'macrophytedll.R'
+    'makeInputVector.R'
     'o2sat.R'
     'rSALMO-internal.R'
     'rSALMO-package.R'
