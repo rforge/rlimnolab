@@ -44,7 +44,7 @@ salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
 
     # test test test
     if (syslog) cat(time, "\t", zmixret$idzmix, "\t", zmixret$zres, "\n", file="logfile.log", append = TRUE)
-    if (zmixret$zres > 30) zmixret <- list(idzmix=30, zres=30) # !!! depth hard coded
+    if (zmixret$zres > 20) zmixret <- list(idzmix=41, zres=20) # !!! depth hard coded
     # end test
 
     cc["Zres"] <- zmixret$zres          # set resuspension depth to mixing depth
