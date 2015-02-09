@@ -1,4 +1,5 @@
 library(rSALMO)
+library(plot3D)
 
 parms <- get_salmo_parms(nlayers=61, macrophytes=TRUE)
 
@@ -43,20 +44,33 @@ ntime       <- length(time)
 ndepth      <- length(depth)
 maxdepth    <- max(depth)
 
-eddymatrix  <- turbulence$eddy * 8.64  # m2/s --> dm2/d to conversion
-tempmatrix  <- turbulence$temp
+## fixme
+depth[61] <- 0.25
 
-depthmatrix <- matrix(rep(depth, each=ntime), nrow=ntime)
-#emptymatrix <- matrix(0, nrow=ntime, ncol=ndepth)
+level <- maxdepth - depth
+
+# convert and reverse order
+eddymatrix  <- turbulence$eddy[, ndepth:1] * 8.64/1000  # m2/s --> dm2/d to conversion
+tempmatrix  <- turbulence$temp[, ndepth:1]
+
+vol <- hyps$vol(depth)
+
+depthmatrix <- matrix(rep(depth, each=ntime), nrow=ntime)[, ndepth:1]
+
 
 dzmatrix    <- matrix(0.5, nrow=ntime, ncol=ndepth)
+
+#emptymatrix <- matrix(0, nrow=ntime, ncol=ndepth)
 #qinmatrix   <- emptymatrix
+
+
 
 ## sediment area
 asedmatrix  <- matrix(rep(hyps$sediment_area(depth), each=ntime), nrow=ntime)
 
 ## pelagic ratio; todo: rename aver to something else; pelratio?
-avermatrix  <- matrix(rep(hyps$pelagic_ratio(depth), each=ntime), nrow=ntime)
+## !! note pmax 0.1
+avermatrix  <- matrix(rep(pmax(0.1, hyps$pelagic_ratio(depth)), each=ntime), nrow=ntime)
 
 ### hier weiter ...
 
@@ -70,7 +84,7 @@ daily$time <- as.POSIXct((daily$day) * 60*60*24, origin = "1970-01-01 00:00.00 U
 
 daily <- data.frame(
   time = as.POSIXct(format(daily$time, "%Y-%m-%d")),
-  irad = daily$irad
+  irad = daily$irad * 0.5 # iglobal -> par
 )
 
 # ice and snow???
@@ -105,7 +119,7 @@ parms2 <- c(parms,
     #cc = cc, pp = pp, 
     #cc_ma = cc_ma, pp_ma = pp_ma,
     #nOfVar = nOfVar, nOfVar_ma = nOfVar_ma,
-    depths = depth,
+    depths = rev(depth),  # !!! ToDo: order
     nstates = nstates,
     nlayers = nlayers,
     ni = ni   # number of inputs
@@ -114,11 +128,11 @@ parms2 <- c(parms,
 
 inputs <- list(
   time = time,
-  vol  = hyps$vol(30),
+  vol  = vol,
   depth = depthmatrix, # vector would be enough here
   dz    = dzmatrix,    # scalar 0.5  
   qin = 0,
-  ased=asedmatrix,
+  ased= asedmatrix,
   srf=1,
   iin = daily$irad,
   temp = tempmatrix,
@@ -134,7 +148,7 @@ inputs <- list(
   x1in=0,
   x2in=0,
   x3in=0,
-  sf   = 1 + 4 * depthmatrix/maxdepth, # 1 ... 5
+  sf   = 1,# + 4 * depthmatrix/maxdepth, # 1 ... 5
   vmatsedi = vmatsedi
 )
 
@@ -181,8 +195,6 @@ nspec <- parms2$nOfVar["numberOfStates"] + parms2$nOfVar_ma["numberOfStates"]
 
 #rm(cc, pp, cc_ma, pp_ma, nOfVar, nOfVar_ma)
 
-times <- 0:365 # 365
-
 
 cat(file="logfile.log")
 syslog <- FALSE
@@ -196,13 +208,29 @@ names(y0) <- NULL
 state_names <- salmo_state_names(nlayers, macrophytes = FALSE)
 nspec <- parms2$nstates
 
-#tst <- salmo_1d(1, y0, parms2, inputs, forcingfun = signal)
+# some checks
+## comparison with stechlin-data
+#load("xlocal/stechlin/inp_stechlin.rda")
 
+#par(mfrow=c(1,2))
+#ii <- 18
+#sig <- signal(120);        plot(sig[seq(ii, 61*22, 22)])
+#sig <- inp_stechlin[120,]; plot(sig[seq(ii, 140*22, 22)])
+
+
+
+times <- 0:365 # 365
+
+#times <- 100:150
+
+#tst <- salmo_1d(0, y0, parms2, inputs, forcingfun = signal)
+
+system.time(
 out   <- ode.1D(y = y0, times = times, func = salmo_1d, parms = parms2, 
                 method = "bdf", nspec = nspec, atol = 1e-4, rtol=1e-4, hini = 0.1,
                 inputs = inputs, forcingfun = signal
          )
-
+)
 
 
 save.image("tmp_status.Rdata")
@@ -217,24 +245,29 @@ names <- c("N", "P", "X1", "X2", "X3", "Z", "D", "O", "G1", "G2", "G3")
 
 image(out, grid = xmids, ylim=c(30, 0), main=names, add.contour=TRUE, which=c(1:8))
 
-i <- 3:5  # state variables
-j <- 1    # which year
-n <- 365  # length of year
-image(out, grid = xmids, which=i, main=names[i], ylim=c(30,0), legend=TRUE, subset = ((j-1) * n + 1) : (j*n))
+i <- 3:6  # state variables
+image(out, grid = xmids, which=i, main=names[i], ylim=c(30,0), legend=TRUE)
 
-## reorder layer wise if you want ...
-#ii <- as.vector(outer((0:139)*11, 1:11, "+")) + 1
-#oo <- out[,ii]
 
+i <- c(1,2,7,8)  # state variables
+image(out, grid = xmids, which=i, main=names[i], ylim=c(30,0), legend=TRUE)
+
+
+## P
+image(out, grid = xmids, which=2, main=names[2], ylim=c(30,0), zlim=c(0,20), legend=TRUE)
+
+## X ... Z
+image(out, grid = xmids, which=3:5, main=names[3:5], ylim=c(30,0), zlim=c(0,5), legend=TRUE)
+image(out, grid = xmids, which=6, main=names[6], ylim=c(30,0), zlim=c(0,.2), legend=TRUE)
 
 
 ### plot of SALMO inputs
-#library(OceanView)
-library(plot3D)
 
-image2D(inputs$temp)
-image2D(inputs$depth)
-image2D(inputs$ased)
-image2D(inputs$aver)
+#image2D(inputs$eddy/1000)
+
+#image2D(inputs$temp)
+#image2D(inputs$depth)
+#image2D(inputs$ased)
+#image2D(inputs$aver)
 
 

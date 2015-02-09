@@ -34,7 +34,7 @@ transport <- function(x, forcings, parms, idzmix, zres, vmatsedi) {
   mforc <- matrix(forcings, nrow = ni)
   Area <- mforc[ivol, ] / mforc[idz,]
   Area <- c(Area, Area[length(Area)])
-
+  
   with(parms, {
 
     # thpe: one of the matrices was obsolete
@@ -61,7 +61,9 @@ transport <- function(x, forcings, parms, idzmix, zres, vmatsedi) {
       tx <- x[id] # the i-th state variable for all layers
       ## flux of oxygen from atmosphere into first layer
       fluxup <- ifelse(i == iO2, K2 * (o2sat(forcings[itemp]) - tx[1]) / dz[1], 0)
-      ## increase vsink for cyanos in autumn
+      
+      ## optional heuristics: 
+      ##  - increase vsink for cyanos in autumn
       ## ...
       
       ## transport of the i-th state variable

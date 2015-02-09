@@ -35,13 +35,16 @@ salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
       forc <- forcingfun(time)
     }
 
-    itemp <- which(attr(forc, "colnames") == "temp")
+    itemp  <- which(attr(forc, "colnames") == "temp")
+    idepth <- which(attr(forc, "colnames") == "depth")
     temp       <- forc[itemp + (0:(nlayers - 1) * ni)] #layer temperature
-    zmixret    <- calczmix(temp, depths)
+    #depth      <- forc[idepth + (0:(nlayers - 1) * ni)] #layer temperature
+    depth <- depths # thpe: fixme !!!
+    zmixret    <- calczmix(temp, depth)
 
     # test test test
     if (syslog) cat(time, "\t", zmixret$idzmix, "\t", zmixret$zres, "\n", file="logfile.log", append = TRUE)
-    if (zmixret$zres > 30) zmixret <- list(idzmix=60, zres=30) # !!! depth hard coded
+    if (zmixret$zres > 30) zmixret <- list(idzmix=30, zres=30) # !!! depth hard coded
     # end test
 
     cc["Zres"] <- zmixret$zres          # set resuspension depth to mixing depth
