@@ -5,19 +5,6 @@ parms <- get_salmo_parms(nlayers=60, macrophytes=TRUE)
 
 parms$pp_ma["kMortVegSum", 1]  <- 0.01 # [d^-1] Background mortality, little bit increased
 parms$pp_ma["MaxWaveMort", 1]  <- 0    # [d^-1] MortWaveMax = 0  -> no wave mortality
-#parms$pp_ma["pWaveMort", 1] <- 3      # [-] exponent for steepness of sigmoidal curve of wave mortality
-#parms$pp_ma["HWaveMort" ,1] <- 0.5    # [m] Half saturation depth for wave mortality
-
-
-
-parms$pp["EPSX",] <-  c(0.03, 0.02, 0.02) * 5 # specific extinction coefficients (from AEMON database, converted from mg Chl m^-3 to g WW m^-3 by factor of 5)
-#parms$pp["VS",] <- c(0.1, 0.4, 0.4)        # [m/d] settling velocity for phyto-plankton (?? from Rinke et. al. 2010)
-parms$pp["VS",] <- c(0.1, 0.2, 0.2)        # [m/d] settling velocity for phyto-plankton
-
-parms$cc["SEZMAX"]  <- 0.05 # 0.4
-parms$cc["APSFMIN"] <- 0#2
-parms$cc["APSFMAX"] <- 0#7
-parms$cc["EPSMIN"]  <- 0.1
 
 # SALMO calculation of sedimentation to sediment: internal  = 1, external = 0
 parms$cc["SF"] <- 0
@@ -73,9 +60,6 @@ asedmatrix  <- matrix(rep(hyps$sediment_area(depth), each=ntime), nrow=ntime)
 avermatrix  <- matrix(rep(pmax(0.1, hyps$pelagic_ratio(depth)), each=ntime), nrow=ntime)
 avermatrix[,60] <-0 # no water at bottom
 
-
-### hier weiter ...
-
 data(irad)
 
 ## derive daily sums (J/cm^2/d)
@@ -99,7 +83,6 @@ iin <- daily$irad * (1 - 0.9* (daily$time < as.POSIXct("2005-03-01")))
 
 vmatsedi <- sedimentation_matrix(parms, nstates, nphy, seq(0.5, 30, 0.5), focussing=c(1, 1))
 #vmatsedi <- sedimentation_matrix(parms, nstates, nphy, depth) # depth had wrong order!
-#vmatsedi[61, ] <- 0
 vmatsedi[61, ] <- vmatsedi[60, ]
 
 
@@ -120,22 +103,14 @@ names(y0) <- NULL
 
 parms2 <- c(parms,
   list(
-    K2 = 1.0,   # reaeration from atmosphere
+    K2 = 1.0,             # oxygen reaeration from atmosphere
     depths = rev(depth),  # !!! ToDo: make this obsolete
     nstates = nstates,
     nlayers = nlayers,
-    ni = ni   # number of inputs
+    ni = ni,              # number of inputs
+    zresmax = 20          # maximum resuspension depth
   )
 )
-
-## test INTERNAL sedimentation
-#parms2$cc["SF"] <- 1
-
-## Susanne's 1... 5 heuristics
-## internal sedimentation: set sf
-sfmatrix <- 1 #+ 4 * depthmatrix/maxdepth # 1 ... 5
-## ist alternativ schon in vmatsedi drin ??
-
 
 
 inputs <- list(
@@ -160,7 +135,7 @@ inputs <- list(
   x1in  = 5,
   x2in  = 5,
   x3in  = 5,
-  sf    = sfmatrix,  # Hmmm. Sedimentation only for last layer ??
+  sf    = 1, # no sediment focussing; note also vmatsedi
   vmatsedi = vmatsedi
 )
 
@@ -175,10 +150,7 @@ forcing_functions <- function(inputs) {
   forcings = function(time) {
     ## print simulation time to screen
     cnt <<- cnt + 1
-    if (cnt > 100) {
-      cnt <<- 0
-      cat("time := ", time, "\n")
-    }
+    if (cnt > 100) {cnt <<- 0; cat("time := ", time, "\n")}
 
     ## ..... do interpolation here .....
     forc <- makeInputVector(inputs, time)
@@ -186,7 +158,7 @@ forcing_functions <- function(inputs) {
     attr(forc, "colnames") <- colnames
     
     ## check data and fix inconsistencies
-    ## temperature must not be <= 0
+    ## - temperature must be > 0
     forc[seq(9, 1320, 22)] <- pmax(forc[seq(9, 1320, 22)], 0.1)
     forc
   }
@@ -215,17 +187,13 @@ nspec <- parms2$nstates
 #load("xlocal/stechlin/inp_stechlin.rda")
 
 #par(mfrow=c(1,2))
-ii <- 9
-sig <- signal(120);        plot(sig[seq(ii, 60*22, 22)])
+#ii <- 9
+#sig <- signal(120);        plot(sig[seq(ii, 60*22, 22)])
 #sig <- inp_stechlin[120,]; plot(sig[seq(ii, 140*22, 22)])
 
 
 
 times <- 0:365 # 365
-
-#times <- 100:150
-
-#tst <- salmo_1d(0, y0, parms2, inputs, forcingfun = signal)
 
 print(system.time(
 out   <- ode.1D(y = y0, times = times, func = salmo_1d, parms = parms2, 
@@ -256,20 +224,4 @@ image(out, grid = xmids, which=i, main=names[i], ylim=c(30,0), legend=TRUE)
 
 
 ## P
-image(out, grid = xmids, which=2, main=names[2], ylim=c(30,0), zlim=c(0,20), legend=TRUE)
-
-## X ... Z
-image(out, grid = xmids, which=3:5, main=names[3:5], ylim=c(30,0), zlim=c(0,10), legend=TRUE)
-image(out, grid = xmids, which=6, main=names[6], ylim=c(30,0), zlim=c(0,1), legend=TRUE)
-
-
-### plot of SALMO inputs
-
-#image2D(inputs$eddy/1000)
-
-#image2D(inputs$temp)
-#image2D(inputs$depth)
-#image2D(inputs$ased)
-#image2D(inputs$aver)
-
-
+image(out, grid = xmids, which=2, main=names[2], ylim=c(30,0), legend=TRUE)

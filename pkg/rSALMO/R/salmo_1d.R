@@ -7,6 +7,9 @@
 #' @param states state vector in correct order
 #' @param parms list containing constant model parameters
 #' @param inputs input vector (environmental conditions)
+#' @param forcingfun function that returns time dependent input data
+#'   in appropriate order ........
+#'   
 #' @return list, first element contains the derivatives, other elements can
 #' contain optional outputs
 #'
@@ -25,11 +28,11 @@ salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
     y.salmo <- states[1:(nlayers * nstates)]                   # plankton submodel
     #y.macro <- states[(nlayers * nstates + 1):length(states)]  # macrophyte submodel
 
-    ## NEW: forcings can be a function
+    ## forcings should be a function 'forcingfun'
+    ## otherwise it has to be a full matrix
     if (is.null(forcingfun)) {
       cat("time = ", time, "\n")
       forc <- approxTime1(inputs$forcings, time)
-      #forc <- approxTimeEq1(inputs$forcings, time)
       attr(forc, "colnames") <- attr(inputs$forcings, "colnames") # thpe: tricky :-(
     } else {
       forc <- forcingfun(time)
@@ -38,14 +41,16 @@ salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
     itemp  <- which(attr(forc, "colnames") == "temp")
     idepth <- which(attr(forc, "colnames") == "depth")
     temp       <- forc[itemp + (0:(nlayers - 1) * ni)] #layer temperature
-    #depth      <- forc[idepth + (0:(nlayers - 1) * ni)] #layer temperature
+    #depth      <- forc[idepth + (0:(nlayers - 1) * ni)] #layer depth
     depth <- depths # thpe: fixme !!!
     zmixret    <- calczmix(temp, depth)
 
-    # test test test
+    ## optionally write calculated depths to log file
     if (syslog) cat(time, "\t", zmixret$idzmix, "\t", zmixret$zres, "\n", file="logfile.log", append = TRUE)
-    if (zmixret$zres > 20) zmixret <- list(idzmix=41, zres=20) # !!! depth hard coded
-    # end test
+    
+    ## limit resuspension depth by a given maximum value
+    if (zmixret$zres > zresmax) zmixret <- list(idzmix=41, zres = zresmax)
+    
 
     cc["Zres"] <- zmixret$zres          # set resuspension depth to mixing depth
 
@@ -60,7 +65,7 @@ salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
       as.double(cc),
       as.double(pp),
       forc       = as.double(forc),
-      y.tmp      = as.double(y.tmp),    # contains modified forcings
+      y.tmp      = as.double(y.tmp),    # Note: contains modified forcings
       dy.salmo   = as.double(dy.salmo)
     )
 

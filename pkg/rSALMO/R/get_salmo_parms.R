@@ -1,14 +1,14 @@
 #' Get SALMO Parameters
-#' 
+#'
 #' Read default model parameters and construct parameter list.
-#' 
-#' 
-#' @param nlayers integer specifying number of layers in 1D case, 
+#'
+#'
+#' @param nlayers integer specifying number of layers in 1D case,
 #'   must be 1 even in the two-box setting.
 #' @param macrophytes TRUE if macrophyte parametes shoudl be included
-#' 
+#'
 #' @return a list with all required model parameters
-#' 
+#'
 #' @export get_salmo_parms
 
 
@@ -18,15 +18,15 @@ get_salmo_parms <- function(nlayers = 1, macrophytes = FALSE) {
   data(parms_salmo_other)
   cc        <- parms_salmo_other$value
   names(cc) <- parms_salmo_other$id
-  
-  ## phytoplankton parameters, matrix with 1 column per phytopl. species 
+
+  ## phytoplankton parameters, matrix with 1 column per phytopl. species
   data(parms_salmo_phyto)
   pp        <- parms_salmo_phyto[,-1]
   row.names(pp) <- parms_salmo_phyto[,1]
   pp <- as.matrix(pp)
-  
-  
-  
+
+
+
   ## NOFVAR
   nOfVar <- c(
     numberOfInputs      = 21,
@@ -38,10 +38,10 @@ get_salmo_parms <- function(nlayers = 1, macrophytes = FALSE) {
     numberOfTributaries = 1,
     numberOfOutlets     = 1,
     timestep = 1
-  ) 
-  
+  )
+
   ## important!
-  nOfVar["numberOfParameters"] <- length(pp) / nOfVar["numberOfAlgae"] 
+  nOfVar["numberOfParameters"] <- length(pp) / nOfVar["numberOfAlgae"]
 
   ret <- list(
     pp = pp,
@@ -55,17 +55,17 @@ get_salmo_parms <- function(nlayers = 1, macrophytes = FALSE) {
     data(parms_mac_other)
     cc_ma        <- parms_mac_other$value
     names(cc_ma) <- parms_mac_other$id
-    
-    ## phytoplankton parameters, matrix with 1 column per phytopl. species 
+
+    ## phytoplankton parameters, matrix with 1 column per phytopl. species
     data(parms_mac_plants)
     pp_ma         <- parms_mac_plants[,-1]
     row.names(pp_ma) <- parms_mac_plants[,1]
     pp_ma <- as.matrix(pp_ma)
-    
+
     data(parms_mac_ctrl)
     nOfVar_ma        <- parms_mac_ctrl$value
     names(nOfVar_ma) <- parms_mac_ctrl$id
-    ## total number of layers 
+    ## total number of layers
     nOfVar_ma["numberOfLayers"] <- nOfVar["numberOfLayers"]
     ret <- list(
       pp = pp,
@@ -76,6 +76,6 @@ get_salmo_parms <- function(nlayers = 1, macrophytes = FALSE) {
       nOfVar_ma = nOfVar_ma
     )
   }
-  
+
   return(ret)
 }
