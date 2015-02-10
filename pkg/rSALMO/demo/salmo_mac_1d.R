@@ -133,7 +133,7 @@ parms2 <- c(parms,
 
 ## Susanne's 1... 5 heuristics
 ## internal sedimentation: set sf
-sfmatrix <- 1 + 4 * depthmatrix/maxdepth # 1 ... 5
+sfmatrix <- 1 #+ 4 * depthmatrix/maxdepth # 1 ... 5
 ## ist alternativ schon in vmatsedi drin ??
 
 
@@ -227,12 +227,12 @@ times <- 0:365 # 365
 
 #tst <- salmo_1d(0, y0, parms2, inputs, forcingfun = signal)
 
-system.time(
+print(system.time(
 out   <- ode.1D(y = y0, times = times, func = salmo_1d, parms = parms2, 
                 method = "bdf", nspec = nspec, atol = 1e-4, rtol=1e-4, hini = 0.1,
                 inputs = inputs, forcingfun = signal
          )
-)
+))
 
 
 #save.image("tmp_status.Rdata")
