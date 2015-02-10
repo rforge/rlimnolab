@@ -64,6 +64,7 @@ transport <- function(x, forcings, parms, idzmix, zres, vmatsedi) {
       
       ## optional heuristics: 
       ##  - increase vsink for cyanos in autumn
+      ##  - D Zoo + 1.5
       ## ...
       
       ## transport of the i-th state variable
@@ -77,10 +78,11 @@ transport <- function(x, forcings, parms, idzmix, zres, vmatsedi) {
     if(cc["SF"] == 0){
       depthsvec <- rep(depths, nstates)
       sedicheck <- ifelse(depthsvec > zres, TRUE, FALSE)
+      #cat("zres=", zres, "\n")
       sedi <- as.vector(vmatsedi[2:nrow(vmatsedi),]) / rep(dz, nstates) * # vsink / dz
-        rep(forcings[isf + (0:(nlayers-1)) * ni], nstates) *              # SF
+        rep(forcings[isf + (0:(nlayers-1)) * ni], nstates) *              # SF ## thpe: instead of vmatsedi ???!!!
         (1 - rep(forcings[iaver + (0:(nlayers-1)) * ni], nstates)) *      # 1 - aver
-        x * sedicheck                                     # tief > zres
+        x * sedicheck                                                     # depth > zres
 
       ## thpe: add check for negative sedimentation
       if (any(sedi < 0)) {

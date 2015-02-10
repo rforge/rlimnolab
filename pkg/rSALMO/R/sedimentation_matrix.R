@@ -39,7 +39,7 @@ sedimentation_matrix <- function(parms, nstates=NULL, nphy=NULL, depths=NULL, fo
   vmat          <- vmat * SF(depths)
   vmat[,6]      <- 0 # -0.15 # - parms$cc["VMIG"] # measurement unit?
   ### add row with zeros on top
-  vmat          <- rbind(matrix(rep(0, nstates), byrow = TRUE, nrow = 1), vmat)
+  vmat          <- rbind(vmat, matrix(rep(0, nstates), byrow = TRUE, nrow = 1))
 
   ## no flux down of phytoplankton in last layer,
   ## because sedimentation to sediment is handled by SalmoCore internally
