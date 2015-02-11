@@ -5,7 +5,7 @@
 \title{Create Sedimentation and Migration Matrix for SALMO-1D}
 \usage{
 sedimentation_matrix(parms, nstates = NULL, nphy = NULL, depths = NULL,
-  focussing = c(1, 5))
+  focussing = c(1, 1))
 }
 \arguments{
 \item{parms}{SALMO parameter list}
@@ -16,7 +16,8 @@ sedimentation_matrix(parms, nstates = NULL, nphy = NULL, depths = NULL,
 
 \item{depths}{vector of individual depths (m)  (deprecated !!!)}
 
-\item{focussing}{two-valued vector for a linear sediment focussing heuristics}
+\item{focussing}{optional two-valued vector for a linear sediment focussing
+heuristics (e.g. \code{c(1, 2)} - experimental!)}
 }
 \value{
 matrix with sedimentation / migration velocities

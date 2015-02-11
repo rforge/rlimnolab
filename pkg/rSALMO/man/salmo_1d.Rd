@@ -14,6 +14,9 @@ salmo_1d(time, states, parms, inputs, forcingfun = NULL)
 \item{parms}{list containing constant model parameters}
 
 \item{inputs}{input vector (environmental conditions)}
+
+\item{forcingfun}{function that returns time dependent input data
+  in appropriate order ........}
 }
 \value{
 list, first element contains the derivatives, other elements can

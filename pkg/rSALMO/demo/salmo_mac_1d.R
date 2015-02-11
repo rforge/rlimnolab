@@ -31,35 +31,23 @@ ntime       <- length(time)
 ndepth      <- length(depth)
 maxdepth    <- max(depth)
 
+dz    <- diff(depth)[1] # all dz must be equal; unequal depths not yet implemented
+level <- maxdepth - depth + dz
+vol   <- hyps$vol(level)
 
-level <- maxdepth - depth
-
-# convert and reverse order
-eddymatrix  <- turbulence$eddy[, ndepth:1] * 8.64/1000  # m2/s --> dm2/d to conversion
-tempmatrix  <- turbulence$temp[, ndepth:1]
-
-vol <- hyps$vol(depth)
-
-depthmatrix <- matrix(rep(depth, each=ntime), nrow=ntime)[, ndepth:1]
-
-
-dzmatrix    <- matrix(0.5, nrow=ntime, ncol=ndepth)
+depthmatrix <- matrix(rep(depth, each=ntime), nrow=ntime)
+#tempmatrix <- turbulence$temp
+#eddymatrix <- turbulence$eddy
+#dzmatrix    <- matrix(dz, nrow=ntime, ncol=ndepth)
 
 emptymatrix <- matrix(0, nrow=ntime, ncol=ndepth)
-qinmatrix   <- emptymatrix
 
 # entrainment of tributaries; specific depths, Q dependend on residence time
+qinmatrix   <- emptymatrix
 qinmatrix[,1:11] <- rep(vol[21:31]/300, each=ntime) 
 
 
-## sediment area
-asedmatrix  <- matrix(rep(hyps$sediment_area(depth), each=ntime), nrow=ntime)
-
-## pelagic ratio; todo: rename aver to something else; pelratio?
-## !! note pmax 0.1
-avermatrix  <- matrix(rep(pmax(0.1, hyps$pelagic_ratio(depth)), each=ntime), nrow=ntime)
-avermatrix[,60] <-0 # no water at bottom
-
+## global irradiation data
 data(irad)
 
 ## derive daily sums (J/cm^2/d)
@@ -73,17 +61,24 @@ daily <- data.frame(
   irad = daily$irad * 0.5 # iglobal -> par
 )
 
-## Jan + Feb with ice
+## assumption: Jan + Feb with ice
 iin <- daily$irad * (1 - 0.9* (daily$time < as.POSIXct("2005-03-01")))
 
 
 
 ## sedimentation speed for each state in different depths
-## ?? advectionmatrix
+## ?? rename to advectionmatrix?
 
-vmatsedi <- sedimentation_matrix(parms, nstates, nphy, seq(0.5, 30, 0.5), focussing=c(1, 1))
-#vmatsedi <- sedimentation_matrix(parms, nstates, nphy, depth) # depth had wrong order!
-vmatsedi[61, ] <- vmatsedi[60, ]
+vmatsedi <- sedimentation_matrix(parms, nstates, nphy, depth)
+vmatsedi[61, ] <- vmatsedi[60, ] ## fixme
+
+## sediment area
+asedmatrix  <- matrix(rep(hyps$sediment_area(level), each=ntime), nrow=ntime)
+
+## pelagic ratio; todo: rename aver to something else; pelratio?
+## !! note pmax 0.1
+avermatrix  <- matrix(rep(pmax(0.1, hyps$pelagic_ratio(level)), each=ntime), nrow=ntime)
+avermatrix[,60] <-0 # no water at bottom -- check this !!!
 
 
 ## start values for SALMO
@@ -104,7 +99,7 @@ names(y0) <- NULL
 parms2 <- c(parms,
   list(
     K2 = 1.0,             # oxygen reaeration from atmosphere
-    depths = rev(depth),  # !!! ToDo: make this obsolete
+    depths = depth,  # !!! ToDo: make this obsolete
     nstates = nstates,
     nlayers = nlayers,
     ni = ni,              # number of inputs
@@ -116,13 +111,13 @@ parms2 <- c(parms,
 inputs <- list(
   time  = time,
   vol   = vol,
-  depth = depthmatrix, # vector would be enough here
-  dz    = dzmatrix,    # scalar 0.5  
+  depth = depthmatrix, # vector "depth" should be enough here
+  dz    = dz, #dzmatrix,    # scalar 0.5  
   qin   = qinmatrix,
   ased  = asedmatrix,
   srf   = 1,
   iin   = iin,
-  temp  = tempmatrix,
+  temp  = turbulence$temp, # tempmatrix,
   nin   = 10,
   pin   = 50,
   pomin = 50,
@@ -131,7 +126,7 @@ inputs <- list(
   aver  = avermatrix,
   ad    = 0,
   au    = 0,
-  eddy  = eddymatrix,
+  eddy  = turbulence$eddy, #eddymatrix,
   x1in  = 5,
   x2in  = 5,
   x3in  = 5,
@@ -183,14 +178,15 @@ state_names <- salmo_state_names(nlayers, macrophytes = FALSE)
 nspec <- parms2$nstates
 
 # some checks
-## comparison with stechlin-data
+# comparison with stechlin-data
 #load("xlocal/stechlin/inp_stechlin.rda")
-
+#pdf()
 #par(mfrow=c(1,2))
-#ii <- 9
-#sig <- signal(120);        plot(sig[seq(ii, 60*22, 22)])
-#sig <- inp_stechlin[120,]; plot(sig[seq(ii, 140*22, 22)])
-
+#for (ii in 1:22) {
+#  sig <- signal(120);        plot(sig[seq(ii, 60*22, 22)])
+#  sig <- inp_stechlin[120,]; plot(sig[seq(ii, 140*22, 22)])
+#}
+#dev.off()
 
 
 times <- 0:365 # 365
@@ -206,7 +202,7 @@ out   <- ode.1D(y = y0, times = times, func = salmo_1d, parms = parms2,
 #save.image("tmp_status.Rdata")
 #write.table(out, "out.txt", col.names=NA, row.names=TRUE)
 
-xmids <- 30-depth - 0.5/2
+xmids <- depth - 0.5/2
 names <- c("N", "P", "X1", "X2", "X3", "Z", "D", "O", "G1", "G2", "G3")
 #names <- c("N", "P", "X1", "X2", "X3", "Z", "D", "O", "DVeg", "PVeg", "NVeg", "fRootVeg")
 

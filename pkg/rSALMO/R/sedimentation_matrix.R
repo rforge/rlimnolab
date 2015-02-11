@@ -8,7 +8,8 @@
 #' @param nstates   total number of state variables  (deprecated !!!)
 #' @param nphy      number of phytoplankton groups   (deprecated !!!)
 #' @param depths    vector of individual depths (m)  (deprecated !!!)
-#' @param focussing two-valued vector for a linear sediment focussing heuristics
+#' @param focussing optional two-valued vector for a linear sediment focussing 
+#'   heuristics (e.g. \code{c(1, 2)} - experimental!)
 #' @return matrix with sedimentation / migration velocities
 #'
 #' @examples
@@ -22,7 +23,7 @@
 #' @export sedimentation_matrix
 #'
 
-sedimentation_matrix <- function(parms, nstates=NULL, nphy=NULL, depths=NULL, focussing = c(1, 5)) {
+sedimentation_matrix <- function(parms, nstates=NULL, nphy=NULL, depths=NULL, focussing = c(1, 1)) {
   if (is.null(nstates)) nstates <- parms$nstates
   if (is.null(nphy))    nphy    <- parms$nphy
   if (is.null(depths))  depths  <- parms$depths
