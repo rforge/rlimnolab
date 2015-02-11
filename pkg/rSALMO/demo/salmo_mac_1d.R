@@ -36,34 +36,20 @@ level <- maxdepth - depth + dz
 vol   <- hyps$vol(level)
 
 depthmatrix <- matrix(rep(depth, each=ntime), nrow=ntime)
-#tempmatrix <- turbulence$temp
-#eddymatrix <- turbulence$eddy
-#dzmatrix    <- matrix(dz, nrow=ntime, ncol=ndepth)
-
-emptymatrix <- matrix(0, nrow=ntime, ncol=ndepth)
 
 # entrainment of tributaries; specific depths, Q dependend on residence time
-qinmatrix   <- emptymatrix
+qinmatrix   <- matrix(0, nrow=ntime, ncol=ndepth)
 qinmatrix[,1:11] <- rep(vol[21:31]/300, each=ntime) 
 
 
 ## global irradiation data
 data(irad)
+## aggregate hourly data to daily sums (J/cm^2/d)
+daily <- aggregate_daily(irad$time, irad$irad2, basedate= "1970-01-01 00:00.00 UTC")
 
-## derive daily sums (J/cm^2/d)
-data(irad)
-irad$day   <- floor(as.numeric(irad$time)/60/60/24)
-daily      <- aggregate(list(irad = irad$irad2[-1]), list(day=irad$day[-1]), sum)
-daily$time <- as.POSIXct((daily$day) * 60*60*24, origin = "1970-01-01 00:00.00 UTC")
-
-daily <- data.frame(
-  time = as.POSIXct(format(daily$time, "%Y-%m-%d")),
-  irad = daily$irad * 0.5 # iglobal -> par
-)
 
 ## assumption: Jan + Feb with ice
-iin <- daily$irad * (1 - 0.9* (daily$time < as.POSIXct("2005-03-01")))
-
+iin <- daily$y * (1 - 0.9* (daily$day < as.POSIXct("2005-03-01")))
 
 
 ## sedimentation speed for each state in different depths
@@ -116,7 +102,7 @@ inputs <- list(
   qin   = qinmatrix,
   ased  = asedmatrix,
   srf   = 1,
-  iin   = iin,
+  iin   = iin * 0.5,       # conversion to PAR
   temp  = turbulence$temp, # tempmatrix,
   nin   = 10,
   pin   = 50,
