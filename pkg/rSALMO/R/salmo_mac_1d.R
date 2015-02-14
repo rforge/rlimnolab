@@ -7,13 +7,17 @@
 #' @param states state vector in correct order
 #' @param parms list containing constant model parameters
 #' @param inputs input vector (environmental conditions)
+#' @param ndx hashtable (environment) of indexes and counters 
+#' @param forcingfun function that returns time dependent input data
+#'   in appropriate order ........
+#'   
 #' @return list, first element contains the derivatives, other elements can
 #' contain optional outputs
 #'
 #' @rdname salmo_mac_1d
 #' @export salmo_mac_1d
-salmo_mac_1d <- function(time, states, parms, inputs) {
-  cat("time = ", time, "\n")
+salmo_mac_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
+  #cat("time = ", time, "\n")
 
   if(any(states < 0)) {
     id <- which(states < 0)
@@ -26,27 +30,39 @@ salmo_mac_1d <- function(time, states, parms, inputs) {
     y.salmo <- states[1:(nlayers * nstates)]                   # plankton submodel
     y.macro <- states[(nlayers * nstates + 1):length(states)]  # macrophyte submodel
     
+    ## forcings should be a function 'forcingfun'
+    ## otherwise it has to be a full matrix
+    if (is.null(forcingfun)) {
     forc <- approxTime1(inputs$forcings, time)
     attr(forc, "colnames") <- attr(inputs$forcings, "colnames") # thpe: tricky :-(
+    } else {
+      forc <- forcingfun(time)
+    }
     
-    #cat(attr(forc, "colnames"), "\n\n")
-    
-    ## thpe: hard-coded indices "9" should be avoided. Use indirect variables
-    itemp <- which(attr(forcings, "colnames") == "temp")
-    #temp      <- forc[9 + (0:(nlayers - 1) * ni)] #layer temperature 
-    temp       <- forc[itemp + (0:(nlayers - 1) * ni)] #layer temperature 
+    itemp  <- ndx$itemp
+    idepth <- ndx$idept
+    temp       <- forc[itemp + (0:(nlayers - 1) * ni)] #layer temperature
+
+    depth <- depths # thpe: fixme !!!
     zmixret    <- calczmix(temp, depths)
     # test test test
+    ## optionally write calculated depths to log file
     if (syslog) cat(time, "\t", zmixret$idzmix, "\t", zmixret$zres, "\n", file="logfile.log", append = TRUE)
-    if (zmixret$zres > 30) zmixret <- list(idzmix=60, zres=30) # !!! depth hard coded
-    # end test
+    
+    ## limit resuspension depth by a given maximum value
+    if (zmixret$zres > zresmax) {
+      ## which.min works opposit to which here (finds 1st FALSE)
+      idzmix <- which.min(depth <= zresmax) 
+      zmixret <- list(idzmix=idzmix, zres = zresmax)
+    }
+    #cat(unlist(zmixret), "\n")
+
     cc["Zres"] <- zmixret$zres          # set resuspension depth to mixing depth
  
     ## call SALMO core for every layer and returns derivatives for all layers  
     dy.salmo <- numeric(length(y.salmo))
     ## reorder states for use with SALMO
-    y.tmp  <- arrangeLayerWise(y.salmo, nOfVar["numberOfStates"], nOfVar["numberOfLayers"])
-    # y.tmp  <- arrangeLayerWise(y.salmo, nstates, nlayers) # would be better!
+    y.tmp  <- arrangeLayerWise(y.salmo, nstates, nlayers)
     salmo <- .C(
       "MReaktion",
       as.integer(nOfVar),
@@ -93,7 +109,7 @@ salmo_mac_1d <- function(time, states, parms, inputs) {
     #dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres, 
     #  vmat, vmatsedi, time)
 
-    dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres,
+    dtransport <- transport(y.salmo, forc, parms, ndx, zmixret$idzmix, zmixret$zres,
       vmatsedi)
     
     ## state equation

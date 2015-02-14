@@ -4,7 +4,7 @@
 \alias{salmo_mac_1d}
 \title{Derivatives of SALMO with macrophytes}
 \usage{
-salmo_mac_1d(time, states, parms, inputs)
+salmo_mac_1d(time, states, parms, inputs, ndx, forcingfun = NULL)
 }
 \arguments{
 \item{time}{simulation time (days)}
@@ -14,6 +14,11 @@ salmo_mac_1d(time, states, parms, inputs)
 \item{parms}{list containing constant model parameters}
 
 \item{inputs}{input vector (environmental conditions)}
+
+\item{ndx}{hashtable (environment) of indexes and counters}
+
+\item{forcingfun}{function that returns time dependent input data
+  in appropriate order ........}
 }
 \value{
 list, first element contains the derivatives, other elements can

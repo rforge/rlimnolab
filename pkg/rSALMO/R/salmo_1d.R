@@ -38,13 +38,13 @@ salmo_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
       forc <- forcingfun(time)
     }
 
-    itemp  <- which(attr(forc, "colnames") == "temp")
-    idepth <- which(attr(forc, "colnames") == "depth")
+    itemp  <- ndx$itemp
+    idepth <- ndx$idept
     temp       <- forc[itemp + (0:(nlayers - 1) * ni)] #layer temperature
-    #depth      <- forc[idepth + (0:(nlayers - 1) * ni)] #layer depth
+    
     depth <- depths # thpe: fixme !!!
-    zmixret    <- calczmix(temp, depth)
-
+    zmixret    <- calczmix(temp, depths)
+    # test test test
     ## optionally write calculated depths to log file
     if (syslog) cat(time, "\t", zmixret$idzmix, "\t", zmixret$zres, "\n", file="logfile.log", append = TRUE)
     

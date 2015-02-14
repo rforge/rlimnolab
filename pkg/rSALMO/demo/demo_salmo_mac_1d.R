@@ -67,21 +67,6 @@ avermatrix  <- matrix(rep(pmax(0.1, hyps$pelagic_ratio(level)), each=ntime), nro
 avermatrix[,60] <-0 # no water at bottom -- check this !!!
 
 
-## start values for SALMO
-y0 <- c(N=10, P=8, X1=0.1, X2=0.1,  X3=0.1, Z=0.1, D=1, O=13, G1=1, G2=1, G3=1)
-
-## Initial values for the macrophytes sub-model
-xm <- c(
-  sDVeg        = 1*50,       # [gDW/m^2] 
-  sPVeg        = 0.002*50,   # [gP/m^2] 
-  sNVeg        = 0.02*50,    # [gN/m^2] 
-  afRootVeg    = 0.6         # [-]
-)
-
-y0 <- rep(c(y0, xm), each = nlayers)
-names(y0) <- NULL
-
-
 parms2 <- c(parms,
   list(
     K2 = 1.0,             # oxygen reaeration from atmosphere
@@ -148,8 +133,6 @@ signal <- forcing_functions(inputs)
 
 nspec <- parms2$nOfVar["numberOfStates"] + parms2$nOfVar_ma["numberOfStates"]  
 
-#rm(cc, pp, cc_ma, pp_ma, nOfVar, nOfVar_ma)
-
 
 cat(file="logfile.log")
 syslog <- FALSE
@@ -163,28 +146,49 @@ names(y0) <- NULL
 state_names <- salmo_state_names(nlayers, macrophytes = FALSE)
 nspec <- parms2$nstates
 
-# some checks
-# comparison with stechlin-data
-#load("xlocal/stechlin/inp_stechlin.rda")
-#pdf()
-#par(mfrow=c(1,2))
-#for (ii in 1:22) {
-#  sig <- signal(120);        plot(sig[seq(ii, 60*22, 22)])
-#  sig <- inp_stechlin[120,]; plot(sig[seq(ii, 140*22, 22)])
-#}
-#dev.off()
-
-
 times <- 0:365 
 
 ndx <- init_salmo_integers(parms)
 
+# print(system.time(
+# out   <- ode.1D(y = y0, times = times, func = salmo_1d, parms = parms2, 
+#                 method = "bdf", nspec = nspec, atol = 1e-4, rtol=1e-4, hini = 0.1,
+#                 inputs = inputs, forcingfun = signal, ndx=ndx
+#          )
+# ))
+
+## -----------------------------------------------------------------------------
+
+## start values with macropohytes
+y0 <- c(N=10, P=8, X1=0.1, X2=0.1,  X3=0.1, Z=0.1, D=1, O=13, G1=1, G2=1, G3=1)
+
+## Initial values for the macrophytes sub-model
+xm <- c(
+  sDVeg        = 1*50,       # [gDW/m^2] 
+  sPVeg        = 0.002*50,   # [gP/m^2] 
+  sNVeg        = 0.02*50,    # [gN/m^2] 
+  afRootVeg    = 0.6         # [-]
+)
+
+y0 <- c(y0, xm)
+
+nstates <- length(y0)
+
+y0 <- rep(y0, each = nlayers)
+names(y0) <- NULL
+
+state_names <- salmo_state_names(nlayers, macrophytes = TRUE)
+
+nspec <- parms2$nOfVar["numberOfStates"] + parms2$nOfVar_ma["numberOfStates"] 
+
 print(system.time(
-out   <- ode.1D(y = y0, times = times, func = salmo_1d, parms = parms2, 
-                method = "bdf", nspec = nspec, atol = 1e-4, rtol=1e-4, hini = 0.1,
-                inputs = inputs, forcingfun = signal, ndx=ndx
-         )
+  out   <- ode.1D(y = y0, times = times, func = salmo_mac_1d, parms = parms2, 
+                  method = "bdf", nspec = nspec, atol = 1e-4, rtol=1e-4, hini = 0.1,
+                  inputs = inputs, forcingfun = signal, ndx=ndx
+  )
 ))
+
+
 
 
 #save.image("tmp_status.Rdata")
