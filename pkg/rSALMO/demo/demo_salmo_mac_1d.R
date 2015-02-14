@@ -196,7 +196,7 @@ print(system.time(
 
 xmids <- depth - 0.5/2
 names <- c("N", "P", "X1", "X2", "X3", "Z", "D", "O", "G1", "G2", "G3")
-#names <- c("N", "P", "X1", "X2", "X3", "Z", "D", "O", "DVeg", "PVeg", "NVeg", "fRootVeg")
+names <- c("N", "P", "X1", "X2", "X3", "Z", "D", "O", "G1", "G2", "G3", "DVeg", "PVeg", "NVeg", "fRootVeg")
 
 
 ### plot of state variables (outputs of SALMO)
@@ -213,3 +213,10 @@ image(out, grid = xmids, which=i, main=names[i], ylim=c(30,0), legend=TRUE)
 
 ## P
 image(out, grid = xmids, which=2, main=names[2], ylim=c(30,0), legend=TRUE)
+
+
+## vegetation
+i <- 12:15
+image(out, grid = xmids, which=i, main=names[i], ylim=c(30,0), legend=TRUE)
+
+

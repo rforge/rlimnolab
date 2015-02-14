@@ -62,7 +62,9 @@ salmo_mac_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
     ## call SALMO core for every layer and returns derivatives for all layers  
     dy.salmo <- numeric(length(y.salmo))
     ## reorder states for use with SALMO
-    y.tmp  <- arrangeLayerWise(y.salmo, nstates, nlayers)
+    #y.tmp  <- arrangeLayerWise(y.salmo, nstates, nlayers)
+    y.tmp <- as.vector(t(matrix(y.salmo, nrow=nlayers, ncol=nstates))) # layer wise
+    
     salmo <- .C(
       "MReaktion",
       as.integer(nOfVar),
@@ -79,7 +81,8 @@ salmo_mac_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
     aFunVegSed <- 1/c(1, salmo$aFunVegRes)
     
     # thpe: returned from from salmodll:
-    dreaction <- arrangeStateWise(salmo$dy.salmo, nstates, nlayers)
+    #dreaction <- arrangeStateWise(salmo$dy.salmo, nstates, nlayers)
+    dreaction <- as.vector(t(matrix(salmo$dy.salmo, nrow=nstates, ncol=nlayers))) #state wise
     
     ## call macrophyte model
     #salmodmx <- numeric(length(y.salmo)) # thpe: redundant
@@ -101,7 +104,8 @@ salmo_mac_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
       dy.macro = as.double(dy.macro)
     )
      
-    dmacro <- arrangeStateWise(macro$dy.salmo, nstates, nlayers)
+    #dmacro <- arrangeStateWise(macro$dy.salmo, nstates, nlayers)
+    dmacro <- as.vector(t(matrix(macro$dy.salmo, nrow=nstates, ncol=nlayers))) #state wise
 
     #vmat       <- inputs$vmat     * aFunVegSed
     vmatsedi   <- inputs$vmatsedi * aFunVegSed

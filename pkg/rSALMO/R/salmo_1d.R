@@ -62,7 +62,8 @@ salmo_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
     dy.salmo <- numeric(length(y.salmo))
 
     ## reorder states for use with SALMO
-    y.tmp  <- arrangeLayerWise(y.salmo, nstates, nlayers)
+    #y.tmp  <- arrangeLayerWise(y.salmo, nstates, nlayers)
+    y.tmp <- as.vector(t(matrix(y.salmo, nrow=nlayers, ncol=nstates))) # layer wise
     salmo <- .C(
       "RReaktion",
       as.integer(nOfVar),
@@ -74,7 +75,8 @@ salmo_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
     )
 
     # thpe: returned from from salmodll:
-    dreaction <- arrangeStateWise(salmo$dy.salmo, nstates, nlayers)
+    #dreaction <- arrangeStateWise(salmo$dy.salmo, nstates, nlayers)
+    dreaction <- as.vector(t(matrix(salmo$dy.salmo, nrow=nstates, ncol=nlayers))) #state wise
 
     ## dummy for macrophyte model (zero derivatives)
     #dy.macro <- numeric(length(y.macro))

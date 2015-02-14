@@ -4,7 +4,7 @@
 \alias{transport}
 \title{Calulate Vertical Transport for a 1D Lake Model}
 \usage{
-transport(x, forcings, parms, ndx, idzmix, zres, vmatsedi)
+transport(x, forcings, parms, ndx, idzmix, zres, vmat)
 }
 \arguments{
 \item{x}{vector of state variables}
@@ -17,7 +17,7 @@ transport(x, forcings, parms, ndx, idzmix, zres, vmatsedi)
 
 \item{zres}{resuspension depth}
 
-\item{vmatsedi}{matrix conmtaining the vertical sedimentation velocities for the state variables}
+\item{vmat}{matrix containing the vertical sedimentation velocities for the state variables}
 }
 \value{
 vector of the derivatives of the model
