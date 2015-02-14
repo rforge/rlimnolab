@@ -175,12 +175,14 @@ nspec <- parms2$nstates
 #dev.off()
 
 
-times <- 0:365 # 365
+times <- 0:365 
+
+ndx <- init_salmo_integers(parms)
 
 print(system.time(
 out   <- ode.1D(y = y0, times = times, func = salmo_1d, parms = parms2, 
                 method = "bdf", nspec = nspec, atol = 1e-4, rtol=1e-4, hini = 0.1,
-                inputs = inputs, forcingfun = signal
+                inputs = inputs, forcingfun = signal, ndx=ndx
          )
 ))
 

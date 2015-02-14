@@ -18,7 +18,7 @@ salmo_2box(time, x, p, inputs, ndx)
 
 \item{inputs}{input vector (environmental conditions)}
 
-\item{ndx}{has table (environment) of indexes and counters}
+\item{ndx}{hashtable (environment) of indexes and counters}
 }
 \value{
 list, first element contains the derivatives, other elements can

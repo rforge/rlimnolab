@@ -4,7 +4,7 @@
 \alias{salmo_1d}
 \title{Derivatives of SALMO}
 \usage{
-salmo_1d(time, states, parms, inputs, forcingfun = NULL)
+salmo_1d(time, states, parms, inputs, ndx, forcingfun = NULL)
 }
 \arguments{
 \item{time}{simulation time (days)}
@@ -14,6 +14,8 @@ salmo_1d(time, states, parms, inputs, forcingfun = NULL)
 \item{parms}{list containing constant model parameters}
 
 \item{inputs}{input vector (environmental conditions)}
+
+\item{ndx}{hashtable (environment) of indexes and counters}
 
 \item{forcingfun}{function that returns time dependent input data
   in appropriate order ........}

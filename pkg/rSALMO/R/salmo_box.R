@@ -8,7 +8,7 @@
 #' @param x state vector in correct order
 #' @param p list containing constant model parameters
 #' @param inputs input vector (environmental conditions)
-#' @param ndx has table (environment) of indexes and counters 
+#' @param ndx hashtable (environment) of indexes and counters 
 #' @return list, first element contains the derivatives, other elements can
 #' contain optional outputs
 #'

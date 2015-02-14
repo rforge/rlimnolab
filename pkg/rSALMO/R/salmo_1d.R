@@ -7,6 +7,7 @@
 #' @param states state vector in correct order
 #' @param parms list containing constant model parameters
 #' @param inputs input vector (environmental conditions)
+#' @param ndx hashtable (environment) of indexes and counters 
 #' @param forcingfun function that returns time dependent input data
 #'   in appropriate order ........
 #'   
@@ -15,7 +16,7 @@
 #'
 #' @export salmo_1d
 
-salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
+salmo_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
 
   if(any(states < 0)) {
     id <- which(states < 0)
@@ -31,7 +32,6 @@ salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
     ## forcings should be a function 'forcingfun'
     ## otherwise it has to be a full matrix
     if (is.null(forcingfun)) {
-      cat("time = ", time, "\n")
       forc <- approxTime1(inputs$forcings, time)
       attr(forc, "colnames") <- attr(inputs$forcings, "colnames") # thpe: tricky :-(
     } else {
@@ -49,8 +49,12 @@ salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
     if (syslog) cat(time, "\t", zmixret$idzmix, "\t", zmixret$zres, "\n", file="logfile.log", append = TRUE)
     
     ## limit resuspension depth by a given maximum value
-    if (zmixret$zres > zresmax) zmixret <- list(idzmix=41, zres = zresmax)
-    
+    if (zmixret$zres > zresmax) {
+      ## which.min works opposit to which here (finds 1st FALSE)
+      idzmix <- which.min(depth <= zresmax) 
+      zmixret <- list(idzmix=idzmix, zres = zresmax)
+    }
+    #cat(unlist(zmixret), "\n")
 
     cc["Zres"] <- zmixret$zres          # set resuspension depth to mixing depth
 
@@ -75,7 +79,7 @@ salmo_1d <- function(time, states, parms, inputs, forcingfun=NULL) {
     ## dummy for macrophyte model (zero derivatives)
     #dy.macro <- numeric(length(y.macro))
 
-    dtransport <- transport(y.salmo, forc, parms, zmixret$idzmix, zmixret$zres,
+    dtransport <- transport(y.salmo, forc, parms, ndx, zmixret$idzmix, zmixret$zres,
       inputs$vmatsedi)
 
     ## state equation

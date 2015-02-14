@@ -15,20 +15,20 @@
 #' 
 #' @export transport
 #'
-transport <- function(x, forcings, parms, idzmix, zres, vmatsedi) {
+transport <- function(x, forcings, parms, ndx, idzmix, zres, vmatsedi) {
 
   dxx <- numeric(length(x))
   cnames <- attr(forcings, "colnames")
   
-  isf   <- which(cnames == "sf")
-  itemp <- which(cnames == "temp")
-  iaver <- which(cnames == "aver")
-  ivol  <- which(cnames == "vol")
-  idz   <- which(cnames == "dz")
-  ieddy <- which(cnames == "eddy")
+  isf   <- ndx$isf
+  itemp <- ndx$itemp
+  iaver <- ndx$iaver
+  ivol  <- ndx$ivol
+  idz   <- ndx$idz
+  ieddy <- ndx$ieddy
   
-  iO2 <- 8
-  ni <- parms$nOfVar["numberOfInputs"]
+  iO2 <- ndx$iO
+  ni <- ndx$ninputs
   
   ## calculate area from volume and depth
   mforc <- matrix(forcings, nrow = ni)

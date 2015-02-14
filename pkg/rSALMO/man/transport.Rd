@@ -4,7 +4,7 @@
 \alias{transport}
 \title{Calulate Vertical Transport for a 1D Lake Model}
 \usage{
-transport(x, forcings, parms, idzmix, zres, vmatsedi)
+transport(x, forcings, parms, ndx, idzmix, zres, vmatsedi)
 }
 \arguments{
 \item{x}{vector of state variables}
