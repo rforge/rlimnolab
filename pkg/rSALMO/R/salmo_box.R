@@ -8,20 +8,14 @@
 #' @param x state vector in correct order
 #' @param p list containing constant model parameters
 #' @param inputs input vector (environmental conditions)
+#' @param ndx has table (environment) of indexes and counters 
 #' @return list, first element contains the derivatives, other elements can
 #' contain optional outputs
 #'
 #' @rdname salmo_box
 #' @export salmo_1box
 
-salmo_1box <- function(time, x, p, inputs) {
-  # save a few frequently used criteria to temporary variables
-  #xnames <- names(x)
-  #O2 <-  which(xnames == "O")
-  
-  # the same "hard coded" for testing performance
-  O2 <- 8
-  
+salmo_1box <- function(time, x, p, inputs, ndx) {
   #cat(time, "\n")
 
   ## interpolate data (this is the slowest part of the simulation)
@@ -34,8 +28,8 @@ salmo_1box <- function(time, x, p, inputs) {
   dx <-c(ret[[2]] - ret[[3]])
 
   ## fix oxygen balance at surface to saturated value
-  dx[O2] <-  o2sat(uu["temp"]) - x[O2]
-  
+  dx[ndx$iO] <-  o2sat(uu["temp"]) - x[ndx$iO]
+    
   ## sedimentation
   # to be checked
   v     <- unname(c(0, 0, p$pp["VS", ], 0, p$cc["VD"], 0, 0, 0, 0))
@@ -44,10 +38,11 @@ salmo_1box <- function(time, x, p, inputs) {
   list(dx - sed, iin = unname(uu["iin"]))
 }
 
+
 #' @rdname salmo_box
 #' @export salmo_2box
-salmo_2box <- function(time, x, p, inputs) {
-  cat("time=", time, "\n")
+salmo_2box <- function(time, x, p, inputs, ndx) {
+  #cat("Salmo 2box time=", time, "\n")
   
   
   if(any(x < 0)) {
@@ -57,14 +52,14 @@ salmo_2box <- function(time, x, p, inputs) {
   }
   x <- ifelse(x < 0, 1e-7, x)
   
-  noi <- p$nOfVar["numberOfInputs"]
-  nos <- p$nOfVar["numberOfStates"]
+  noi <- ndx$ninputs
+  nos <- ndx$nstates
   
   
   ## constants; should be made flexible
-  undt <- 1  # index of eps, modified by phytoplankton; can be used by physics
-  uvol <- 2  # index of volume of the layer
-  uiin <- 8  # index of light at bottom of box  
+  #undt <- ndx$itime # 1  # index of eps, modified by phytoplankton; can be used by physics
+  uvol <- ndx$ivol  # 2  # index of volume of the layer
+  uiin <- ndx$iiin  # 8  # index of light at bottom of box  
 
   ## interpolate data (this is the slowest part of the simulation)
   uu <- approxTime1(inputs, time)
@@ -112,30 +107,35 @@ salmo_2box <- function(time, x, p, inputs) {
   }
   
   ## sedimentation
-  # to be implemented
-  v     <- unname(c(0, 0, p$pp["VS", ], 0, p$cc["VD"], 0, 0, 0, 0))
+  #v     <- unname(c(0, 0, p$pp["VS", ], 0, p$cc["VD"], 0, 0, 0, 0))
+  v <- rep(0, nos)
+  ## sedimentation velocity VS of X1, X2 and D
+  v[c(ndx$iX1, ndx$iX2, ndx$iX3, ndx$iD)] <- c(p$pp["VS",], p$cc["VD"])
+  
+  
   sedE <- xE * v / uuE["dz"]
   
+  ## to follow the original: v * 2 or v * SF ?
   if (stratified) {
-    sedH <- xH * v / uuH["dz"] # v * 2? oder v * SF?
+    sedH <- xH * v * p$cc["SF"] / uuH["dz"] 
   } else {
     sedH <- 0
     
   }
   
-  #cat("sedE", sedE, "\n")
   
+  # todo: zmig 
   
-  ## return source - sink terms
-  dxE <-c(retE[[2]] - retE[[3]]) + trE - sedE
-  dxH <-c(retH[[2]] - retH[[3]]) + trH - sedH
+  ##      source - sink terms + transp - sed.loss + sed.from.epi * area
+  dxE <-c(retE[[2]] - retE[[3]]) + trE - sedE 
+  dxH <-c(retH[[2]] - retH[[3]]) + trH - sedH +  sedE *  uuE["aver"]
 
   ## Set oxygen balance at surface to saturated value
-  dxE[8] <-  o2sat(uuE["temp"]) - x[8]
+  dxE[ndx$iO] <-  o2sat(uuE["temp"]) - x[ndx$iO]
   
   ## correct also for "dummy hypo" if no stratification
   if (! stratified) {
-    dxH[8] <-  o2sat(uuE["temp"]) - x[19] # remove hard coded # for O2h
+    dxH[ndx$iO] <-  o2sat(uuE["temp"]) - x[ndx$iO + ndx$nstates] # ndx = 8, 19
   }
     
   list(c(dxE, dxH))#, uuE[uiin], uuH[uiin])

@@ -8,8 +8,6 @@ library(rSALMO)
 ### ================ work in progress ======================
 ### Warning: transport, sedimentation and sediment not yet implemented
 ### ToDo:
-###    - add functions or data set to handle hypsographic function
-###    - create 2 cbind() forcing matrices for epi- and hypolimnion
 ###    - implement details of function SALMO.2box
 ### Open Tasks
 ###    - sediment area
@@ -31,7 +29,7 @@ hyps <- hypso_functions(hypso_bautzen)
 ## sediment area of hypo- and epilimnion
 
 ## upper boundaries of hypo- and epilimnion
-levels <- with(data_bautzen_1997, cbind(hypo = s-zmixreal, epi = s))
+levels <- with(data_bautzen_1997, cbind(hypo = s - zmixreal, epi = s))
 
 ## calculate sediment area row-wise for pairs of hypo and epilimnion depths
 ## "1" means row wise, t() means that result needs to be transposed
@@ -61,10 +59,7 @@ forcE <- with(data_bautzen_1997,
                depth  = zmixreal,    # absolute depth of the layer (m), required for resuspension depth
                dz     = zmix,          # zmix, or layer thickness (m)
                qin    = qin,        # water inflow (m^3 d^-1)
-  ## !!! ToDo !!! Salmo crashes because sediment_area is so high
-  ## I have currenly no idea what happens here.             
-  ## It will need careful debugging on the C level             
-               ased   = 0,#sediment_area[,2],          # sediment contact area of the layer (m^2); important
+               ased   = sediment_area[,2],          # sediment contact area of the layer (m^2); important
                srf    = srf,        # strong rain factor, an empirical index of turbidity
                iin    = iin,        # photosynthetic active radiation (J cm^2 d^-1); approx 50% of global irradiation
                temp   = temp,       # water temperature (deg. C)
@@ -74,12 +69,13 @@ forcE <- with(data_bautzen_1997,
                zin    = zin,        # zooplankton in inflow (w.w. mg L^-1)
                oin    = oin,  # oxygen concentration in inflow (mg L^-1)
                aver   = pelagic_ratio[,2],      # 1 - (ratio of sediment contact area to total area); (redundant if SF=0)
-               ad     = 0,#ah,          # downwards flux between layers (m^3 d^-1)
-               au     = 0,#ae,          # upwards flux between layers (m^3 d^-1)
-               diff   = 0,          # eddy diffusion coefficient
+               ad     = ah,          # downwards flux between layers (m^3 d^-1)
+               au     = ae,          # upwards flux between layers (m^3 d^-1)
+               diff   = 0,          # eddy diffusion coefficient, not used in 2box setting
                x1in   = xin1,       # phytoplankton import of group 1 (w.w. mg L^-1)
                x2in   = xin2,       # phytoplankton import of group 2 (w.w. mg L^-1)
-               x3in   = 0       # phytoplankton import of group 3 (w.w. mg L^-1)
+               x3in   = 0,       # phytoplankton import of group 3 (w.w. mg L^-1)
+               SF = 1
              )
 )
 forcH <- with(data_bautzen_1997,
@@ -89,9 +85,9 @@ forcH <- with(data_bautzen_1997,
                 depth  = s - 154,
                 dz     = zhm,
                 qin    = qhin,
-                ased   = sediment_area[,1]/1e6,
+                ased   = sediment_area[,1],
                 srf    = srf,
-                iin    = 0,
+                iin    = 0,            # internally calculated from epilimnion
                 temp   = temph,
                 nin    = nhin,
                 pin    = phin,
@@ -99,16 +95,20 @@ forcH <- with(data_bautzen_1997,
                 zin    = zhin,
                 oin    = ohin,
                 aver   = 0,            # is zero in hypolimnion
-                ad     = 0,#ah,
-                au     = 0,#ae,
+                ad     = ah,
+                au     = ae,
                 diff   = 0,
                 x1in   = xhin1,
                 x2in   = xhin2,
-                x3in   = 0
+                x3in   = 0,
+                SF = 1
               )
 )
 
-  
+
+## assumption: Jan + Feb with ice
+forcE$iin <- forcE$iin * (1 - 0.9* (forcE$time < 60))
+
 
 ## Matrices are faster than data frames
 forc <- as.matrix(cbind(forcE, forcH))
@@ -122,16 +122,12 @@ parms$cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",	"NDSSTART",	"NDSEND",	"KNDS",	"KN
    c(0.005,   0.002,	    0,	 0.095,	   0,	         365,	     0.00,	 1.03)
 
 ## TEST TEST TEST
-#cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",  "NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
+#parms$cc[c("MOMIN",  "MOT", "KANSF", "NDSMAX",  "NDSSTART",	"NDSEND",	"KNDS",	"KNDST")] <-
 #   c(0.005,   0.002,	    0,	 0,	   0,	         0,	     0.00,	 1.03)
 
 
 ## Background light extinction is lake specific
 parms$cc["EPSMIN"] <- 0.7
-
-## Check that internal sedimentation is switched off
-parms$cc["SF"] == 0
-
 
 ## Initial values
 ## Xi = Phytoplankton biomass (mg/L w.w.)
@@ -152,14 +148,17 @@ ret <- call_salmodll("SalmoCore", parms$nOfVar, parms$cc, parms$pp, forc, x0)
 ## Simulation time steps
 times <- seq(0, 365, 1)
 
-times <- seq(0, 365, 0.1)
+ndx <- init_salmo_integers(parms)
 
-## Model simulation with "lsoda" from package deSolve
-## rtol adapted because of numerical problem at time = 132
-out <- ode(x0, times, salmo_2box, parms = parms, method="vode", inputs=forc, atol=1e-6, rtol=1e-2)
+## Model simulation with package deSolve: try "lsoda", "adams", "vode", "ode45"
+## rtol adapted to circumvent numerical problem at time = 132
+system.time(
+ out <- ode(x0, times, salmo_2box, parms = parms, method="adams", inputs=forc, ndx=ndx, atol=1e-6, rtol=1e-2)
+)
 
+plot(out, which=1:8)
 
-plot(out)
+plot(out, which=12:19)
 
 
 ## Todo:

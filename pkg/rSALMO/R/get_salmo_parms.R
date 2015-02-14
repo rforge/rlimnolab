@@ -29,7 +29,7 @@ get_salmo_parms <- function(nlayers = 1, macrophytes = FALSE) {
 
   ## NOFVAR
   nOfVar <- c(
-    numberOfInputs      = 21,
+    numberOfInputs      = 22,  # Check: 21 for box versions?
     numberOfOutputs     = 14,
     numberOfStates      = 11,
     numberOfParameters  = NA,
@@ -37,8 +37,10 @@ get_salmo_parms <- function(nlayers = 1, macrophytes = FALSE) {
     numberOfLayers      = as.integer(nlayers),
     numberOfTributaries = 1,
     numberOfOutlets     = 1,
-    timestep = 1
+    timestep            = 1   # check: essential / obsolete / for compatibility only ?
   )
+  
+  #if (nlayers > 1) nOfVar$numerOfInputs <- 22 # contains SF column
 
   ## important!
   nOfVar["numberOfParameters"] <- length(pp) / nOfVar["numberOfAlgae"]
