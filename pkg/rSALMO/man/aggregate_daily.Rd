@@ -29,6 +29,6 @@ Calculate daily sums or averages, e.g. from from hourly irradiation data.
 \examples{
 ## global hourly irradiation data
 data(irad)
-daily <- irad_daily(irad$time, irad$irad2, basedate= "1970-01-01 00:00.00 UTC")
+daily <- aggregate_daily(irad$time, irad$irad2, basedate= "1970-01-01 00:00.00 UTC")
 }
 

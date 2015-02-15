@@ -9,7 +9,7 @@ makeInputVector(inputs, x)
 \arguments{
 \item{inputs}{list of input data; must contain vectors depth and time}
 
-\item{time}{vector of requested time steps for interpolation}
+\item{x}{vector of requested time steps for interpolation}
 }
 \value{
 vector of interpolated data in the order abcabcabc.

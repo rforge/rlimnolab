@@ -1,4 +1,3 @@
-
 #' Ecological Simulation of Lakes
 #'
 #' \tabular{ll}{
@@ -27,9 +26,10 @@
 #' @keywords package
 #' @examples
 #' 
-#' demo("salmo_1box")
-#' demo("salmo_2box")
+#' demo("demo_salmo_1box")
+#' demo("demo_salmo_2box")
 #' 
 #' @useDynLib rSALMO
 #' 
+#' @import deSolve ReacTran plot3D RColorBrewer
 NULL

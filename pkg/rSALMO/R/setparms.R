@@ -14,13 +14,13 @@
 #' @return the manipulated \code{parms} object (vector, matrix or list)
 #' @examples
 #'
-#' data(cc)
-#' cc <- setparms(cc, c("YZP","dummy", "EPSMIN", "dtt"), c(0.7, 66, 0.77, 0.1))
-#' cc
+#' data(parms_salmo_other)
+#' parms_salmo_other <- setparms(parms_salmo_other, c("YZP","dummy", "EPSMIN", "dtt"), c(0.7, 66, 0.77, 0.1))
+#' parms_salmo_other
 #'
-#' data(pp)
-#' pp <- setparms(pp, c("TOPTX", "vs"), c(28, 0.22), c(1, 3))
-#' # pp <- setparms(pp, "KP", c(1.4, 1.5, 1.6), 1:3) # not yet possible
+#' data(parms_salmo_phyto)
+#' parms_salmo_phyto <- setparms(parms_salmo_phyto, c("TOPTX", "vs"), c(28, 0.22), c(1, 3))
+#' # parms_salmo_phyto <- setparms(parms_salmo_phyto, "KP", c(1.4, 1.5, 1.6), 1:3) # not yet possible
 #'
 #' @rdname setparms
 #' @export setparms

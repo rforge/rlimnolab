@@ -2,10 +2,10 @@ Package: rSALMO
 Type: Package
 Title: Simulation of ecological lake models
 Version: 0.2.3
-Date: 2015-02-02
-Depends:
+Date: 2015-02-15
+LazyData: yes
+Depends: R (>= 2.15),
     deSolve,
-    rootSolve,
     ReacTran,
     plot3D,
     RColorBrewer

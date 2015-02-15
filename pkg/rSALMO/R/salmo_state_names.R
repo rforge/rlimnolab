@@ -4,7 +4,6 @@
 #' 
 #' @param macrophytes logical if state variable names for macrophytes should be included
 #' @param nlayers numeric, number of layers fro replicating the names
-#' @param parms list containing constant model parameters
 #' 
 #' @return vector of names for states resp inputs.
 #' contain optional outputs

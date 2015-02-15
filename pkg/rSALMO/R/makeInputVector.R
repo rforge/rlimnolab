@@ -6,7 +6,7 @@
 #' @aliases makeInputVector
 #'
 #' @param inputs list of input data; must contain vectors depth and time
-#' @param time  vector of requested time steps for interpolation
+#' @param x vector of requested time steps for interpolation
 #'
 #'
 #' @return vector of interpolated data in the order abcabcabc.

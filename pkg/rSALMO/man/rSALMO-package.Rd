@@ -20,8 +20,8 @@ An R implementation of the SALMO lake model\cr
 (SALMO: Simulation by means of An analytical Lake MOdel)
 }
 \examples{
-demo("salmo_1box")
-demo("salmo_2box")
+demo("demo_salmo_1box")
+demo("demo_salmo_2box")
 }
 \author{
 Rene Sachse and Thomas Petzoldt (package)\cr

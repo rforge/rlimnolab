@@ -14,13 +14,24 @@
 
 get_salmo_parms <- function(nlayers = 1, macrophytes = FALSE) {
 
+  ## tell R CMD check that the data() variables exist
+  #parms_salmo_phyto <- parms_salmo_other <- NULL
+  #parms_mac_plants <- parms_mac_other <- parms_mac_ctrl <- NULL
+
+  parms_salmo_phyto <- rSALMO::parms_salmo_phyto
+  parms_salmo_other <- rSALMO::parms_salmo_other
+  parms_mac_plants  <- rSALMO::parms_mac_plants
+  parms_mac_other   <- rSALMO::parms_mac_other
+  parms_mac_ctrl    <- rSALMO::parms_mac_ctrl
+  
+  
   ## unique SALMO parameters, vector
-  data(parms_salmo_other)
+  #data("parms_salmo_other")
   cc        <- parms_salmo_other$value
   names(cc) <- parms_salmo_other$id
 
   ## phytoplankton parameters, matrix with 1 column per phytopl. species
-  data(parms_salmo_phyto)
+  #data("parms_salmo_phyto")
   pp        <- parms_salmo_phyto[,-1]
   row.names(pp) <- parms_salmo_phyto[,1]
   pp <- as.matrix(pp)
@@ -54,17 +65,17 @@ get_salmo_parms <- function(nlayers = 1, macrophytes = FALSE) {
   ## todo: macrophyte parameters ...
   if (macrophytes) {
     ## unique macrophytes parameters, vector
-    data(parms_mac_other)
+    #data("parms_mac_other")
     cc_ma        <- parms_mac_other$value
     names(cc_ma) <- parms_mac_other$id
 
     ## phytoplankton parameters, matrix with 1 column per phytopl. species
-    data(parms_mac_plants)
+    #data("parms_mac_plants")
     pp_ma         <- parms_mac_plants[,-1]
     row.names(pp_ma) <- parms_mac_plants[,1]
     pp_ma <- as.matrix(pp_ma)
 
-    data(parms_mac_ctrl)
+    #data("parms_mac_ctrl")
     nOfVar_ma        <- parms_mac_ctrl$value
     names(nOfVar_ma) <- parms_mac_ctrl$id
     ## total number of layers

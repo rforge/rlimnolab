@@ -13,7 +13,9 @@ transport(x, forcings, parms, ndx, idzmix, zres, vmat)
 
 \item{parms}{list of model parameters}
 
-\item{idzmix}{redundant ?}
+\item{ndx}{hashtable (environment) of indexes and counters}
+
+\item{idzmix}{index of resuspension depth in depth vector}
 
 \item{zres}{resuspension depth}
 

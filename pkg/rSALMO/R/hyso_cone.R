@@ -6,11 +6,11 @@
 #' 
 #' @references
 #' 
-#' Sachse, R., Petzoldt, T., Blumstock, M., Moreira, S., Pätzig, M., 
-#'   Rücker, J., Janse, J. H., Mooij, W. M., Hilt, S. (2014)
+#' Sachse, R., Petzoldt, T., Blumstock, M., Moreira, S., P{\"a}tzig, M., 
+#'   R{\"u}cker, J., Janse, J. H., Mooij, W. M., Hilt, S. (2014)
 #'   Extending one-dimensional models for deep lakes to simulate the impact of 
 #'   submerged macrophytes on water quality.
-#'   Environmental Modelling & Software, 61, 410-423
+#'   Environmental Modelling and Software, 61, 410-423
 #'
 #' @name hypso_cone
 #' @docType data

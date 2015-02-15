@@ -1,0 +1,5 @@
+demo_salmo_1box      Salmo simulation for a fully mixed lake (1 box)
+demo_salmo_2box      Salmo simulation for a two-layer system (epi- and hypolimnion)
+demo_salmo_1d        Salmo simulation in 1D without macrophytes
+demo_salmo_mac_1d    Salmo simulation in 1D with macrophytes
+

@@ -24,11 +24,11 @@
 #'   
 #' @references
 #' 
-#' Sachse, R., Petzoldt, T., Blumstock, M., Moreira, S., Pätzig, M., 
-#'   Rücker, J., Janse, J. H., Mooij, W. M., Hilt, S. (2014)
+#' Sachse, R., Petzoldt, T., Blumstock, M., Moreira, S., P{\"a}tzig, M., 
+#'   R{\"u}cker, J., Janse, J. H., Mooij, W. M., Hilt, S. (2014)
 #'   Extending one-dimensional models for deep lakes to simulate the impact of 
 #'   submerged macrophytes on water quality.
-#'   Environmental Modelling & Software, 61, 410-423
+#'   Environmental Modelling and Software, 61, 410-423
 #' 
 #'  Stips, A., Burchard, H., Bolding, K., Eifler, W. (2002)
 #'    Modelling of convective turbulence with a two-equation k-epsilon 
@@ -53,7 +53,7 @@
 #' image2D(x=turbulence$time, y=turbulence$depth,
 #'   z=list(turbulence$temp, turbulence$eddy),
 #'   main=c("T", "Diff"), las=1, col=myPalette(100), ask=FALSE,
-#'   clab=list("°C", "m²/d")
+#'   clab=list("deg C", "m2/d")
 #' )
 
 

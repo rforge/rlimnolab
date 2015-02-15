@@ -46,13 +46,13 @@ interpolation of depths, areas and volume fractions of layers.
 }
 \examples{
 data(hypso_bautzen)                      # load data table
-hypso <- hypso_functions(bautzen_hypso)  # create function object
+hypso <- hypso_functions(hypso_bautzen)  # create function object
 
 hypso$volume(166)                        # volume at 166 m a.s.l.
 hypso$sediment_area(c(160, 166))         # sediment area of hypo- and epilimnion
 }
 \seealso{
-\code{\link{bautzen_hypso}}, an example of a hypsographic table \cr
+\code{\link{hypso_bautzen}}, an example of a hypsographic table \cr
 \code{\link{areaFunction}}, functions to create a hypsographic table for
 lakes with conical shape.
 }

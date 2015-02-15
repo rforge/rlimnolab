@@ -7,7 +7,8 @@
 #' @param x vector of state variables
 #' @param forcings matrix of environmental forcing data
 #' @param parms list of model parameters
-#' @param idzmix redundant ?
+#' @param ndx hashtable (environment) of indexes and counters 
+#' @param idzmix index of resuspension depth in depth vector
 #' @param zres resuspension depth
 #' @param vmat matrix containing the vertical sedimentation velocities for the state variables
 #' @return vector of the derivatives of the model

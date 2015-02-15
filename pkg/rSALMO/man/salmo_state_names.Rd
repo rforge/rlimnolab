@@ -13,8 +13,6 @@ salmo_state_names(nlayers, macrophytes = FALSE)
 \item{nlayers}{numeric, number of layers fro replicating the names}
 
 \item{macrophytes}{logical if state variable names for macrophytes should be included}
-
-\item{parms}{list containing constant model parameters}
 }
 \value{
 vector of names for states resp inputs.
