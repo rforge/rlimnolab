@@ -1,0 +1,157 @@
+\begin{thebibliography}{21}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{Baumert \emph{et~al.}(1989)Baumert, Bruckner, Kleine, Kluge, Mueller,
+  and Unger}]{Baumert1989}
+Baumert H, Bruckner C, Kleine E, Kluge R, Mueller W, Unger S (1989).
+\newblock \enquote{Numerical Simulation of Estuarine Hydrodynamics.}
+\newblock \emph{Syst. Anal. Model. Simul.}, \textbf{6}(7), 503--506.
+
+\bibitem[{Baumert \emph{et~al.}(2005{\natexlab{a}})Baumert, Benndorf, Bigalke,
+  Goldmann, Nöhren, Petzoldt, Post, and Rolinski}]{Baumert2005awrl}
+Baumert HZ, Benndorf J, Bigalke K, Goldmann D, Nöhren I, Petzoldt T, Post J,
+  Rolinski S (2005{\natexlab{a}}).
+\newblock \enquote{Gekoppelte hydrodynamisch-ökologische Simulation zur
+  Bewirtschaftung von Talsperren. Das hydrophysikalisch-ökologische Talsperren-
+  und Seenmodell SALMO-HR - Modelldokumentation und Leitfaden für den Anwender.
+  BMBF-Projekt GETAS, Anlage zum Abschlussbericht.}
+\newblock \emph{Technical report}, TU Dresden, METCON, HYDROMOD, IAMARIS,
+  Dresden, Pinneberg, Wedel, Hamburg.
+
+\bibitem[{Baumert \emph{et~al.}(2005{\natexlab{b}})Baumert, Duwe, Goldmann,
+  Nöhren, and Paul}]{Baumert2005a}
+Baumert HZ, Duwe K, Goldmann D, Nöhren I, Paul L (2005{\natexlab{b}}).
+\newblock \enquote{{Modellierung der hydrophysikalischen Prozesse in
+  Talsperren}.}
+\newblock \emph{Wasserwirtschaft}, \textbf{95}(5), 23--27.
+
+\bibitem[{Benndorf(1979)}]{Benndorf1979a}
+Benndorf J (1979).
+\newblock \emph{Kausalanalyse, theoretische {S}ynthese und {S}imulation des
+  {E}utrophierungsprozesses in stehenden und gestauten {G}ew\"assern.}
+\newblock Habilitationsschrift, TU Dresden, Fakult\"at Bau-, Wasser- und
+  Forstwesen.
+
+\bibitem[{Benndorf(1988)}]{Benndorf1988}
+Benndorf J (1988).
+\newblock \enquote{Documentation of the dynamic ecological model {SALMO II}.}
+\newblock \emph{TU Dresden, Bereich Hydrobiologie}, pp. 1--29 (unpubl.).
+
+\bibitem[{Benndorf \emph{et~al.}(1985)Benndorf, Koschel, and
+  Recknagel}]{Benndorf1985a}
+Benndorf J, Koschel R, Recknagel F (1985).
+\newblock \enquote{The Pelagic Zone of {Lake Stechlin}. An Approach to a
+  Theoretical Model.}
+\newblock In S~Casper (ed.), \enquote{Lake Stechlin. A Temperate Oligotrophic
+  Lake.}, pp. 443--453. Junk Publishers.
+
+\bibitem[{Benndorf and Recknagel(1979{\natexlab{a}})}]{Benndorf1979c}
+Benndorf J, Recknagel F (1979{\natexlab{a}}).
+\newblock \enquote{Development of models for eutrophication and conclusions for
+  the management of water quality.}
+\newblock \emph{Training course ``Management of surface water ressources with
+  special reference to eutrophication'', Dresden}, pp. 1--27.
+
+\bibitem[{Benndorf and Recknagel(1979{\natexlab{b}})}]{Benndorf1979b}
+Benndorf J, Recknagel F (1979{\natexlab{b}}).
+\newblock \enquote{{Experimente mit einem dynamischen \"okologischen Modell der
+  Freiwasserregion von Talsperren und Seen.}}
+\newblock \emph{Acta Hydrochimica et Hydrobiologica}, \textbf{7}(5), 473--490.
+
+\bibitem[{Benndorf and Recknagel(1982)}]{Benndorf1982}
+Benndorf J, Recknagel F (1982).
+\newblock \enquote{Problems of application of the ecological model {SALMO} to
+  lakes and reservoirs having various trophic states.}
+\newblock \emph{Ecological Modelling}, \textbf{17}, 129--145.
+
+\bibitem[{Janse \emph{et~al.}(1998)Janse, van Donk, and Aldenberg}]{Janse1998}
+Janse JH, van Donk E, Aldenberg T (1998).
+\newblock \enquote{A model study on the stability of the macrophyte-dominated
+  state as affected by biological factors.}
+\newblock \emph{Water Research}, \textbf{32}(9), 2696--2706.
+\newblock ISSN 0043-1354.
+
+\bibitem[{Janse and van Liere(1995)}]{Janse1995}
+Janse JH, van Liere L (1995).
+\newblock \enquote{PCLake: A modelling tool for the evaluation of lake
+  restoration scenarios.}
+\newblock \emph{Water Science and Technology}, \textbf{31}(8), 371--374.
+
+\bibitem[{Petzoldt and {R}ecknagel(1991)}]{Petzoldt1991}
+Petzoldt T, {R}ecknagel F (1991).
+\newblock \enquote{Monte-{C}arlo-{S}imulation mit dem dynamischen {S}eenmodell
+  {SALMO} zur {A}bsch{"a}tzung von {K}onsequenzen der
+  {I}nputvariablen-{U}nsicherheit.}
+\newblock In \enquote{Informatik-{F}achberichte 296. {P}roceedings des 6.
+  {S}ymposium {I}nformatik f{"u}r den {U}mweltschutz. {M}{"u}nchen, {D}ezember
+  1991,} pp. 335--344. Springer-Verlag, Berlin.
+
+\bibitem[{Petzoldt \emph{et~al.}(2005)Petzoldt, Rolinski, Rinke, König,
+  Baumert, and Benndorf}]{Petzoldt2005}
+Petzoldt T, Rolinski S, Rinke K, König M, Baumert HZ, Benndorf J (2005).
+\newblock \enquote{{SALMO: Die ökologische Komponente des gekoppelten
+  Modells}.}
+\newblock \emph{Wasserwirtschaft}, \textbf{95}, 28--33.
+
+\bibitem[{Petzoldt and Siemens(2002)}]{Petzoldt2002}
+Petzoldt T, Siemens K (2002).
+\newblock \enquote{{Nutzung eines \"okologischen Simulationsmodells im
+  Entscheidungsfindungsprozess: Anwendung des Modells SALMO auf die Talsperre
+  Bautzen}.}
+\newblock \emph{Wasser und Boden}, \textbf{54}(9), 42--48.
+
+\bibitem[{Petzoldt and Uhlmann(2006)}]{Petzoldt2006}
+Petzoldt T, Uhlmann D (2006).
+\newblock \enquote{Nitrogen emissions into freshwater ecosystems: is there a
+  need for nitrate elimination in all wastewater treatment plants?}
+\newblock \emph{Acta hydrochim. hydrobiol.}, \textbf{34}, 305--324.
+\newblock \doi{DOI 10.1002/aheh.200500638}.
+
+\bibitem[{Recknagel(1980)}]{Recknagel1980}
+Recknagel F (1980).
+\newblock \emph{Die systemtechnische {P}rozedur zur {M}odellierung und
+  {S}imulation des {E}utrophierungsprozesses in stehenden {G}ew{"a}ssern.}
+\newblock Dissertation, TU Dresden, Fakult\"at Bau-, Wasser- und Forstwesen.
+
+\bibitem[{Recknagel and Benndorf(1982)}]{Recknagel1982}
+Recknagel F, Benndorf J (1982).
+\newblock \enquote{Validation of the ecological simulation model {SALMO}.}
+\newblock \emph{Int. Rev. Ges. Hydrobiol.}, \textbf{67}(1), 113--125.
+
+\bibitem[{Rolinski \emph{et~al.}(2005)Rolinski, Petzoldt, Baumert, Bigalke,
+  Horn, and Benndorf}]{Rolinski2005}
+Rolinski S, Petzoldt T, Baumert HZ, Bigalke K, Horn H, Benndorf J (2005).
+\newblock \enquote{{Das physikalisch-{\"o}kologisch gekoppelte
+  Talsperrenmodell}.}
+\newblock \emph{Wasserwirtschaft}, \textbf{95}, 34--38.
+
+\bibitem[{Sachse \emph{et~al.}(2014)Sachse, Petzoldt, Blumstock, Moreira,
+  Pätzig, Rücker, Janse, Mooij, and Hilt}]{Sachse2014}
+Sachse R, Petzoldt T, Blumstock M, Moreira S, Pätzig M, Rücker J, Janse JH,
+  Mooij WM, Hilt S (2014).
+\newblock \enquote{Extending one-dimensional models for deep lakes to simulate
+  the impact of submerged macrophytes on water quality.}
+\newblock \emph{Environmental Modelling \& Software}, \textbf{61}, 410--423.
+
+\bibitem[{Umlauf \emph{et~al.}(2007)Umlauf, Burchard, and Bolding}]{Umlauf2007}
+Umlauf L, Burchard H, Bolding K (2007).
+\newblock \emph{{GOTM} Sourcecode and Documentation. {V}ersion 4.0}.
+\newblock \texttt{http://www.gotm.net}, \urlprefix\url{http://www.gotm.net}.
+
+\bibitem[{Willmitzer \emph{et~al.}(1998)Willmitzer, Planke, and
+  H{\"o}vel}]{Willmitzer1998}
+Willmitzer H, Planke H, H{\"o}vel K (1998).
+\newblock \enquote{{Einsatz des Simulationsmodells SALMO f\"ur die
+  Bewirtschaftung von Trinkwassertalsperren}.}
+\newblock \emph{gwf -- Wasser - Abwasser - ATT Special}, \textbf{139}(15),
+  42--46.
+
+\end{thebibliography}
