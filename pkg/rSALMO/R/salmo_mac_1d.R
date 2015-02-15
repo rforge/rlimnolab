@@ -22,7 +22,7 @@ salmo_mac_1d <- function(time, states, parms, inputs, ndx, forcingfun=NULL) {
   if(any(states < 0)) {
     id <- which(states < 0)
     #print(paste(time, " warning a state went negative and was set to 1e-7 ", id))
-    cat(state_names[id], "\n")
+    #cat(state_names[id], "\n") # todo: make state_names locally available
   }
   states <- ifelse(states < 0, 1e-7, states)
   

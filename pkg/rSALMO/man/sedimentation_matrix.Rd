@@ -4,7 +4,7 @@
 \alias{sedimentation_matrix}
 \title{Create Sedimentation and Migration Matrix for SALMO-1D}
 \usage{
-sedimentation_matrix(parms, nstates = NULL, nphy = NULL, depths = NULL,
+sedimentation_matrix(parms, nstates = NULL, nphy = NULL, depth = NULL,
   focussing = c(1, 1))
 }
 \arguments{
@@ -14,7 +14,7 @@ sedimentation_matrix(parms, nstates = NULL, nphy = NULL, depths = NULL,
 
 \item{nphy}{number of phytoplankton groups   (deprecated !!!)}
 
-\item{depths}{vector of individual depths (m)  (deprecated !!!)}
+\item{depth}{vector of individual depths (m)  (deprecated !!!)}
 
 \item{focussing}{optional two-valued vector for a linear sediment focussing
 heuristics (e.g. \code{c(1, 2)} - experimental!)}
@@ -32,7 +32,7 @@ ToDo: pass parameters regularly to this function
 nstates <- 8 # nOfVar$numberOfStates
 nphy    <- 3 # nOfVar$numberOfAlgae
 parms   <- get_salmo_parms(nlayers=140, macrophytes=TRUE)
-depths <- seq(0, 70, 0.5) # unique(inputs[,3])
-vmat <- sedimentation_matrix(parms, nstates, nphy, depths)
+depth  <- seq(0, 70, 0.5) # unique(inputs[,3])
+vmat   <- sedimentation_matrix(parms, nstates, nphy, depth)
 }
 
