@@ -68,7 +68,7 @@ salmo_2box <- function(time, x, p, inputs, ndx) {
   uuH <- uu[(noi+1):(2*noi)]  # hypolimnion
 
   
-  stratified <- uuH[uvol] > 1e-14
+  stratified <- (uuH[uvol] > 1e-6)
     
   xE <- x[1:nos]
   xH <- x[(nos+1):(2*nos)]
@@ -87,56 +87,56 @@ salmo_2box <- function(time, x, p, inputs, ndx) {
     retH <- call_salmodll("SalmoCore", p$nOfVar, p$cc, p$pp, uuH, xH)
   } else {
     retH <- retE  # fully mixed conditions 
-    # !!! this works only at beginning of the simulation !!!
-    #     because states have also to be reset resp. balanced 
+    # this works without correction only at beginning of the simulation
+    # because states have also to be reset resp. balanced 
   }
   
   ## ========= Transport ===========
-  ## apply partial mixing of the layers
+  ## optional: partial mixing of the layers
   # ... to be implemented
   
+    
   if (stratified) {
     # !! check this VERY carefully !!!
     trE <- (xH-xE) * uuE["ad"] / uuE["vol"]
     trH <- (xE-xH) * uuE["au"] / uuH["vol"]
-    
-    #cat("trE ", trE, "\n")
-    #cat("trH ", trH, "\n")
   } else {
     trE <- trH <- 0
   }
   
   ## sedimentation
-  #v     <- unname(c(0, 0, p$pp["VS", ], 0, p$cc["VD"], 0, 0, 0, 0))
   v <- rep(0, nos)
   ## sedimentation velocity VS of X1, X2 and D
   v[c(ndx$iX1, ndx$iX2, ndx$iX3, ndx$iD)] <- c(p$pp["VS",], p$cc["VD"])
   
-  
   sedE <- xE * v / uuE["dz"]
   
-  ## to follow the original: v * 2 or v * SF ?
+  ## to follow the original, ist could be: v * 2 or v * SF ?
   if (stratified) {
     sedH <- xH * v * p$cc["SF"] / uuH["dz"] 
   } else {
-    sedH <- 0
-    
+    sedH <- sedE # !!!
   }
   
+  ## correct dummy hypo outside of stratification period 
+  ## by adding a corrective transport
+  if (!stratified) {
+    trH <- xE - xH
+  }
   
   # todo: zmig 
   
-  ##      source - sink terms + transp - sed.loss + sed.from.epi * area
+  ##         source - sink terms + transp - sed.loss + sed.from.epi * area
   dxE <-c(retE[[2]] - retE[[3]]) + trE - sedE 
-  dxH <-c(retH[[2]] - retH[[3]]) + trH - sedH +  sedE *  uuE["aver"]
+  dxH <-c(retH[[2]] - retH[[3]]) + trH - sedH +  sedE * uuE["aver"] * stratified
 
   ## Set oxygen balance at surface to saturated value
   dxE[ndx$iO] <-  o2sat(uuE["temp"]) - x[ndx$iO]
   
-  ## correct also for "dummy hypo" if no stratification
+  ## correct O2 for "dummy hypo" if no stratification
   if (! stratified) {
     dxH[ndx$iO] <-  o2sat(uuE["temp"]) - x[ndx$iO + ndx$nstates] # ndx = 8, 19
   }
     
-  list(c(dxE, dxH))#, uuE[uiin], uuH[uiin])
+  list(c(dxE, dxH))
 }
